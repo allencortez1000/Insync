@@ -1,0 +1,13 @@
+{
+    "name":  "insync",
+    "private":  true,
+    "description":  "Convenience scripts. The projects themselves live in admin/, app/ and supabase/.",
+    "scripts":  {
+                    "web":  "npm --prefix admin run dev",
+                    "web:build":  "npm --prefix admin run build",
+                    "app":  "npm --prefix app run start",
+                    "test:db":  "npm --prefix supabase/tests test",
+                    "install:all":  "npm --prefix admin install \u0026\u0026 npm --prefix app install \u0026\u0026 npm --prefix supabase/tests install \u0026\u0026 npm --prefix e2e install",
+                    "test:pg17":  "npm --prefix e2e run pg17"
+                }
+}

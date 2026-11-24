@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.local
+.env local
+.expo/
+*.log
+e2e/screens/
+e2e/.pgdata/
