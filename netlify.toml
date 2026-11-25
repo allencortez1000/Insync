@@ -1,20 +1,22 @@
-# Netlify build for the admin / staff website (the Expo app and Supabase SQL are not deployed here).
+# One Netlify site: admin website at "/" and the attendance PWA (web version of the app) at "/site".
 #
-# Required environment variables — set them in Netlify:
-#   Site configuration → Environment variables
-#     VITE_SUPABASE_URL       = https://<project-ref>.supabase.co
-#     VITE_SUPABASE_ANON_KEY  = the anon / publishable key (never the service_role key)
-# Then trigger a new deploy: the values are baked in at build time.
+# Required environment variables (Site configuration -> Environment variables):
+#   VITE_SUPABASE_URL       = https://<project-ref>.supabase.co
+#   VITE_SUPABASE_ANON_KEY  = the anon / publishable key (never the service_role key)
+# The PWA reuses the same values. They are baked in at build time: redeploy after changing them.
 
 [build]
-  base = "admin"
-  command = "npm run build"
+  command = "npm --prefix admin ci && npm --prefix app ci && node scripts/build-web.mjs"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
 
-# Single-page app: every path is handled by index.html (e.g. /employees/123, /payslips/abc).
+[[redirects]]
+  from = "/site/*"
+  to = "/site/index.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -26,9 +28,25 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "geolocation=(), camera=(), microphone=()"
+    # Location is used only by the attendance PWA (/site) for Clock In / Clock Out.
+    Permissions-Policy = "geolocation=(self), camera=(), microphone=()"
 
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/site/_expo/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/site/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

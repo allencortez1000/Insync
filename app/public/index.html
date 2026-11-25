@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>%WEB_TITLE%</title>
+    <!-- PWA -->
+    <link rel="manifest" href="/site/manifest.webmanifest" />
+    <meta name="theme-color" content="#1565C0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Insync" />
+    <link rel="apple-touch-icon" href="/site/icons/apple-touch-icon.png" />
+    <style id="expo-reset">
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+      /* Buttons (incl. press-and-hold gear) must not trigger text selection / callout menu on phones. */
+      [role='button'] {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          // Register only when the worker file is really served (the dev server returns the app page instead).
+          fetch('/site/sw.js', { method: 'HEAD', cache: 'no-store' })
+            .then(function (res) {
+              var type = res.headers.get('content-type') || '';
+              if (res.ok && type.indexOf('javascript') !== -1) {
+                return navigator.serviceWorker.register('/site/sw.js', { scope: '/site/' });
+              }
+            })
+            .catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>

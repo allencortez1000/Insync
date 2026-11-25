@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Banner, BiText, Screen, colors } from '../components/ui';
+import { Banner, BiText, Icon, Screen, colors } from '../components/ui';
 import { locationStatusLabel, savedActionLabel, t } from '../i18n';
 import type { PunchOk } from '../lib/api';
 import { formatManilaDate, formatManilaTime } from '../lib/time';
@@ -20,7 +20,7 @@ export function SuccessScreen({ result, onDone }: { result: PunchOk; onDone: () 
     <Screen style={{ backgroundColor: color }}>
       <Pressable style={styles.container} onPress={onDone} accessibilityRole="button" accessibilityLabel="Done">
         <View style={styles.check}>
-          <Text style={[styles.checkMark, { color }]}>✓</Text>
+          <Icon name="checkmark" size={80} color={color} />
         </View>
         <BiText text={savedActionLabel(result.action)} size={38} weight="900" color="#FFFFFF" align="center" />
         <Text style={styles.name} numberOfLines={2}>
@@ -29,9 +29,16 @@ export function SuccessScreen({ result, onDone }: { result: PunchOk; onDone: () 
         <View style={styles.timeBox}>
           <BiText text={t.savedAt} size={16} color="#FFFFFF" align="center" />
           <Text style={styles.time}>{formatManilaTime(result.server_time)}</Text>
-          <Text style={styles.date}>
-            {formatManilaDate(result.server_time)} · {result.site.name}
-          </Text>
+          <View style={styles.dateRow}>
+            <View style={styles.dateItem}>
+              <Icon name="calendar-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.date}>{formatManilaDate(result.server_time)}</Text>
+            </View>
+            <View style={styles.dateItem}>
+              <Icon name="business-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.date}>{result.site.name}</Text>
+            </View>
+          </View>
         </View>
         {locationMissing && (
           <View style={styles.note}>
@@ -46,7 +53,7 @@ export function SuccessScreen({ result, onDone }: { result: PunchOk; onDone: () 
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
+  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16, width: '100%', maxWidth: 720, alignSelf: 'center' },
   check: {
     width: 120,
     height: 120,
@@ -55,10 +62,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkMark: { fontSize: 76, fontWeight: '900' },
   name: { fontSize: 32, fontWeight: '800', color: '#FFFFFF', textAlign: 'center' },
   timeBox: { alignItems: 'center' },
   time: { fontSize: 56, fontWeight: '900', color: '#FFFFFF' },
-  date: { fontSize: 18, color: '#FFFFFF', fontWeight: '600' },
+  dateRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 16, rowGap: 4 },
+  dateItem: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 },
+  date: { fontSize: 18, color: '#FFFFFF', fontWeight: '600', flexShrink: 1 },
   note: { width: '100%', maxWidth: 560, gap: 8 },
 });

@@ -35,7 +35,7 @@ export function Employees() {
     <div className="space-y-4">
       <PageHeader title="Employees" subtitle="Records, site assignments, daily rates, schedules and PINs."
         actions={<Button variant="primary" onClick={() => setCreating(true)}>New employee</Button>} />
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar">
         <Field label="Search" className="w-64"><Input placeholder="Name or code" value={search} onChange={(e) => setSearch(e.target.value)} /></Field>
         <Field label="Site" className="w-56">
           <Select value={siteId} onChange={(e) => setSiteId(e.target.value)}>

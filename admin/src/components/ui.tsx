@@ -9,7 +9,7 @@ export function Button({ variant = 'secondary', size = 'md', className, busy, ch
     primary: 'bg-brand-600 text-white hover:bg-brand-700 border-brand-600',
     secondary: 'bg-white text-gray-800 hover:bg-gray-50 border-gray-300',
     danger: 'bg-red-600 text-white hover:bg-red-700 border-red-600',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 border-transparent',
+    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 border-transparent shadow-none',
   };
   return (
     <button
@@ -17,7 +17,7 @@ export function Button({ variant = 'secondary', size = 'md', className, busy, ch
       {...rest}
       disabled={disabled || busy}
       className={cx(
-        'inline-flex items-center justify-center gap-1.5 rounded-md border font-medium transition disabled:opacity-50 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center gap-1.5 rounded-lg border font-medium shadow-sm transition focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-100 disabled:opacity-50 disabled:cursor-not-allowed',
         size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3.5 py-2 text-sm',
         styles[variant], className)}
     >
@@ -27,7 +27,7 @@ export function Button({ variant = 'secondary', size = 'md', className, busy, ch
   );
 }
 
-const fieldCls = 'w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:bg-gray-100';
+const fieldCls = 'w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100 disabled:bg-gray-100';
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={cx(fieldCls, props.className)} />;
@@ -60,24 +60,24 @@ export function Field({ label, hint, children, className }: { label: ReactNode; 
 export function Card({ title, actions, children, className, padded = true }:
   { title?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string; padded?: boolean }) {
   return (
-    <section className={cx('rounded-lg border border-gray-200 bg-white shadow-sm', className)}>
+    <section className={cx('min-w-0 rounded-xl border border-gray-200 bg-white shadow-sm', className)}>
       {(title || actions) && (
-        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3">
-          <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5">
+          <h2 className="text-[15px] font-semibold text-gray-900">{title}</h2>
           <div className="flex flex-wrap items-center gap-2">{actions}</div>
         </header>
       )}
-      <div className={padded ? 'p-4' : ''}>{children}</div>
+      <div className={padded ? 'p-4 sm:p-5' : ''}>{children}</div>
     </section>
   );
 }
 
 export function PageHeader({ title, subtitle, actions }: { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
-        {subtitle && <p className="mt-0.5 text-sm text-gray-500">{subtitle}</p>}
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">{title}</h1>
+        {subtitle && <p className="mt-1 max-w-3xl text-sm text-gray-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -123,7 +123,7 @@ export function Tr({ children, className, onClick }: { children: ReactNode; clas
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex items-center gap-2 p-4 text-sm text-gray-500">
+    <div className="flex items-center justify-center gap-2 p-6 text-sm text-gray-500">
       <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-brand-600" /> {label}
     </div>
   );
@@ -131,13 +131,13 @@ export function Spinner({ label = 'Loading…' }: { label?: string }) {
 
 export function ErrorBox({ error }: { error: string | null | undefined }) {
   if (!error) return null;
-  return <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</div>;
+  return <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</div>;
 }
 
 export function Notice({ tone = 'blue', children }: { tone?: 'blue' | 'amber' | 'red' | 'green'; children: ReactNode }) {
   const t = { blue: 'border-blue-200 bg-blue-50 text-blue-900', amber: 'border-amber-200 bg-amber-50 text-amber-900',
     red: 'border-red-200 bg-red-50 text-red-900', green: 'border-green-200 bg-green-50 text-green-900' }[tone];
-  return <div className={cx('rounded-md border px-3 py-2 text-sm', t)}>{children}</div>;
+  return <div className={cx('rounded-lg border px-3 py-2 text-sm', t)}>{children}</div>;
 }
 
 export function Empty({ children = 'Nothing here yet.' }: { children?: ReactNode }) {
@@ -154,14 +154,14 @@ export function Modal({ open, title, onClose, children, footer, wide }:
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/40 p-4 sm:p-8" onMouseDown={onClose}>
-      <div className={cx('w-full rounded-lg bg-white shadow-xl', wide ? 'max-w-4xl' : 'max-w-lg')} onMouseDown={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
-          <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-gray-900/50 p-2 sm:p-8" onMouseDown={onClose}>
+      <div role="dialog" aria-modal="true" className={cx('my-auto w-full min-w-0 rounded-2xl bg-white shadow-2xl', wide ? 'max-w-4xl' : 'max-w-lg')} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5">
+          <h3 className="min-w-0 text-base font-semibold text-gray-900">{title}</h3>
           <button className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" onClick={onClose} aria-label="Close">✕</button>
         </div>
-        <div className="space-y-4 px-5 py-4">{children}</div>
-        {footer && <div className="flex justify-end gap-2 border-t border-gray-100 px-5 py-3">{footer}</div>}
+        <div className="space-y-4 px-4 py-4 sm:px-5">{children}</div>
+        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-gray-100 px-4 py-3 sm:px-5">{footer}</div>}
       </div>
     </div>
   );
@@ -184,7 +184,7 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: 
 export function Stat({ label, value, tone, hint }: { label: ReactNode; value: ReactNode; tone?: 'red' | 'amber' | 'green'; hint?: ReactNode }) {
   const color = tone === 'red' ? 'text-red-700' : tone === 'amber' ? 'text-amber-700' : tone === 'green' ? 'text-green-700' : 'text-gray-900';
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</div>
       <div className={cx('num mt-1 text-2xl font-semibold', color)}>{value}</div>
       {hint && <div className="mt-1 text-xs text-gray-500">{hint}</div>}

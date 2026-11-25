@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Keypad } from '../components/Keypad';
-import { Banner, BigButton, BiText, Screen, colors, useIsWide } from '../components/ui';
+import { Avatar, Banner, BigButton, BiText, Screen, colors, useIsWide } from '../components/ui';
 import { t, type Bi } from '../i18n';
 import type { RosterEmployee } from '../lib/api';
 
@@ -83,6 +83,7 @@ export function PinScreen({
     <Screen>
       <ScrollView contentContainerStyle={[styles.container, wide && styles.containerWide]} bounces={false}>
         <View style={styles.who}>
+          <Avatar name={employee.name} size={72} />
           <Text style={styles.name} numberOfLines={2}>
             {employee.name}
           </Text>
@@ -121,6 +122,7 @@ export function PinScreen({
           variant="outline"
           color={colors.text}
           size="md"
+          icon="arrow-back"
           disabled={busy}
           style={styles.back}
         />
@@ -132,12 +134,12 @@ export function PinScreen({
 const styles = StyleSheet.create({
   container: { flexGrow: 1, padding: 16, gap: 14, justifyContent: 'center' },
   containerWide: { maxWidth: 560, width: '100%', alignSelf: 'center' },
-  who: { alignItems: 'center' },
-  name: { fontSize: 30, fontWeight: '800', color: colors.text, textAlign: 'center' },
-  code: { fontSize: 18, fontWeight: '600', color: colors.muted, marginTop: 4 },
+  who: { alignItems: 'center', gap: 6 },
+  name: { fontSize: 28, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  code: { fontSize: 16, fontWeight: '600', color: colors.muted },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 14, marginVertical: 6 },
-  dot: { width: 24, height: 24, borderRadius: 12, borderWidth: 3, borderColor: colors.text },
-  dotFilled: { backgroundColor: colors.text },
+  dot: { width: 20, height: 20, borderRadius: 10, borderWidth: 2.5, borderColor: colors.borderStrong, backgroundColor: colors.surface },
+  dotFilled: { backgroundColor: colors.primary, borderColor: colors.primary },
   messages: { gap: 8, minHeight: 8 },
   back: { width: '100%', maxWidth: 440, alignSelf: 'center' },
 });

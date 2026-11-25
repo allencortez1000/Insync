@@ -46,7 +46,7 @@ export function Overtime() {
         Pending or disputed OT blocks payroll finalization for the affected employee. A decision never deletes the recorded hours;
         unaccepted minutes stay visible on the payslip breakdown with your reason.
       </Notice>
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar">
         <Field label="From"><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
         <Field label="To"><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></Field>
         <Field label="Show" className="w-48">
