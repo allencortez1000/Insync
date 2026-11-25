@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Banner, BigButton, BiText, Screen, colors, useIsWide } from '../components/ui';
+import { Avatar, Banner, BigButton, BiText, Icon, Screen, colors, useIsWide } from '../components/ui';
 import { actionLabel, t, type Bi } from '../i18n';
 import type { VerifyPinOk } from '../lib/api';
 import { formatManilaDateTime } from '../lib/time';
@@ -53,6 +53,9 @@ export function ConfirmScreen({
   return (
     <Screen>
       <ScrollView contentContainerStyle={[styles.container, wide && styles.wide]} bounces={false}>
+        <View style={{ alignSelf: 'center' }}>
+          <Avatar name={auth.employee.name} size={80} />
+        </View>
         <Text style={styles.name} numberOfLines={2}>
           {auth.employee.name}
         </Text>
@@ -74,6 +77,7 @@ export function ConfirmScreen({
           onPress={onConfirm}
           color={color}
           size="xl"
+          icon={action === 'clock_in' ? 'log-in-outline' : 'log-out-outline'}
           busy={busy}
           style={styles.action}
           accessibilityLabel={actionLabel(action).en}
@@ -90,9 +94,12 @@ export function ConfirmScreen({
         />
 
         {!busy && (
-          <Text style={styles.countdown}>
-            {t.timeLeft.en} {Math.ceil(remaining / 1000)}s · {t.timeLeft.fil} {Math.ceil(remaining / 1000)}s
-          </Text>
+          <View style={styles.countdownRow}>
+            <Icon name="timer-outline" size={16} color={colors.muted} />
+            <Text style={styles.countdown}>
+              {t.timeLeft.en} {Math.ceil(remaining / 1000)}s
+            </Text>
+          </View>
         )}
       </ScrollView>
     </Screen>
@@ -102,10 +109,11 @@ export function ConfirmScreen({
 const styles = StyleSheet.create({
   container: { flexGrow: 1, justifyContent: 'center', padding: 20, gap: 16 },
   wide: { maxWidth: 620, width: '100%', alignSelf: 'center' },
-  name: { fontSize: 34, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  name: { fontSize: 30, fontWeight: '800', color: colors.text, textAlign: 'center' },
   code: { fontSize: 18, fontWeight: '600', color: colors.muted, textAlign: 'center' },
   since: { alignItems: 'center', marginVertical: 8 },
   sinceTime: { fontSize: 24, fontWeight: '700', color: colors.text, marginTop: 4, textAlign: 'center' },
   action: { marginTop: 8 },
+  countdownRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   countdown: { textAlign: 'center', color: colors.muted, fontSize: 15 },
 });

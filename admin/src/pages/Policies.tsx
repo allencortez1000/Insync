@@ -263,7 +263,7 @@ function HolidaysTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar">
         <Field label="Year"><Input type="number" className="w-28" value={year} onChange={(e) => setYear(e.target.value)} /></Field>
         <Button variant="primary" onClick={() => setF({ holiday_date: `${year}-01-01`, name: '', kind: 'regular', site_id: null, source_reference: '', published_on: null, notes: null })}>Add holiday</Button>
       </div>

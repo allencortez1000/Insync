@@ -5,7 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useNetInfo } from '@react-native-community/netinfo';
 import * as Crypto from 'expo-crypto';
 
-import { colors } from './src/components/ui';
+import { BrandMark, colors } from './src/components/ui';
 import { attemptsLeft, errorText, t, type Bi } from './src/i18n';
 import {
   siteCheckRequest,
@@ -282,7 +282,7 @@ function Main() {
           return [errorText(failure.code)];
         case 'PIN_LOCKED':
           showMessage(errorText(failure.code), {
-            detail: failure.locked_until ? `Until ${formatManilaTime(failure.locked_until)} · Hanggang ${formatManilaTime(failure.locked_until)}` : undefined,
+            detail: failure.locked_until ? `Until ${formatManilaTime(failure.locked_until)}` : undefined,
           });
           return null;
         case 'OPEN_AT_OTHER_SITE':
@@ -432,7 +432,8 @@ function Main() {
   switch (screen.name) {
     case 'boot':
       return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 20, backgroundColor: colors.bg }}>
+          <BrandMark size={64} />
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );

@@ -53,15 +53,19 @@ The last two need the website running (`npx vite --port 5199` in `admin/`) and `
 
 ## 2. Admin website
 
+The admin website and the web (PWA) version of the attendance app are served as **one website**: admin at `/`, attendance app at `/site`.
+
 ```
-cd admin
-copy .env.example .env      # set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-npm install
-npm run dev                 # http://localhost:5173
-npm run build               # static files in admin/dist
+npm run install:all         # once
+npm run dev                 # http://localhost:5173  (admin)  and  http://localhost:5173/site/  (attendance PWA)
+npm run build:all           # production build of both into ./dist (admin at /, attendance PWA at /site)
 ```
 
-Deploy `admin/dist` to any static host. Configure SPA fallback (all paths → `index.html`). Use only the **anon / publishable** key; never put the `service_role` key in the website or the app.
+On Windows PowerShell, if `npm` is blocked by the execution policy, use `npm.cmd` (for example `npm.cmd run dev`).
+
+Supabase settings come from `admin/.env` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) or, if that file is missing, from the project-root `.env` (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`). Locally, `/site` serves the last `build:all` output; for live editing of the attendance app use `npm run dev:site` (http://localhost:8081/site/).
+
+Deploy with Netlify using the root `netlify.toml` (it runs the combined build and publishes `dist`), or deploy `dist` to any static host with these fallbacks: `/site/*` → `/site/index.html`, everything else → `/index.html`. Use only the **anon / publishable** key; never put the `service_role` key in the website or the app.
 
 Screens: Dashboard · Attendance (review, corrections, location detail) · Overtime review · Employees (assignments, transfers, rates, schedules, PINs, leave ledger) · Schedules · Leave · Allowances · Cash advances · Payroll runs (calculate → review → finalize → paid, exceptions, line-level breakdown, adjustments, void / reissue) · Payslips (printable / Save as PDF) · Reports (payroll register, monthly contributions, attendance, payments CSV) · Sites & devices · Policies & rules · Users & access · Audit log.
 

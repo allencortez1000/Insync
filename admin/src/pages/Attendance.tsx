@@ -5,6 +5,8 @@ import { useAsync } from '../lib/hooks';
 import { employeeLabel, useEmployeesLite, useSites } from '../lib/lookups';
 import { addDays, dateOnly, dateTime, hm, isoToLocalInput, localInputToIso, mapsLink, timeOnly, todayPH } from '../lib/format';
 import type { LocationStatus, WorkSessionRow } from '../lib/types';
+import { usePlaceName } from '../lib/geocode';
+import { Icon } from '../components/icons';
 import { useFeedback } from '../components/feedback';
 import { Badge, Button, Card, Checkbox, Empty, ErrorBox, Field, Input, Modal, Notice, PageHeader, Select, Spinner, StatusBadge, Table, Td, Textarea, Th, Tr } from '../components/ui';
 
@@ -16,6 +18,34 @@ function LocBadge({ status, lat, lng, acc }: { status: LocationStatus | null; la
   const label = status === 'captured' ? `±${acc != null ? Math.round(Number(acc)) : '?'} m` : status.replace('_', ' ');
   const badge = <StatusBadge status={status} />;
   return link ? <a href={link} target="_blank" rel="noreferrer" title={label} className="hover:opacity-80">{badge}</a> : <span title={label}>{badge}</span>;
+}
+
+/** Location line in the session detail: place name first, the recorded coordinates underneath as evidence. */
+function LocationLine({ label, status, lat, lng, acc }: { label: string; status: LocationStatus | null; lat: number | null; lng: number | null; acc: number | null }) {
+  const link = mapsLink(lat, lng);
+  const place = usePlaceName(lat, lng);
+  return (
+    <div className="text-sm">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="text-gray-500">{label}:</span> {status ? <StatusBadge status={status} /> : '—'}
+      </div>
+      {lat != null && (
+        <div className="mt-1 flex items-start gap-2 rounded-lg bg-gray-50 px-2.5 py-2">
+          <Icon name="site" className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+          <div className="min-w-0 flex-1">
+            <div className="font-medium text-gray-900">
+              {place.loading ? <span className="text-gray-400">Finding place name…</span>
+                : place.name ?? <span className="text-gray-500">Place name not available</span>}
+            </div>
+            <div className="num text-xs text-gray-500">
+              {Number(lat).toFixed(5)}, {Number(lng).toFixed(5)}{acc != null && ` · ±${Math.round(Number(acc))} m`}
+              {link && <> · <a className="text-brand-700 underline" href={link} target="_blank" rel="noreferrer">Open map</a></>}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function Attendance() {
@@ -48,7 +78,7 @@ export function Attendance() {
     <div className="space-y-4">
       <PageHeader title="Attendance" subtitle="Punches are original evidence. Corrections need a reason and keep the original record."
         actions={<Button variant="primary" onClick={() => setAdding(true)}>Add missing session</Button>} />
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar">
         <Field label="View" className="w-40">
           <Select value={view} onChange={(e) => setView(e.target.value as 'range' | 'open')}>
             <option value="range">By work date</option><option value="open">Open sessions (any date)</option>
@@ -127,17 +157,6 @@ function SessionDetail({ row, onClose, onChanged }: { row: WorkSessionRow; onClo
     if (note !== null && await run(() => rpc('attendance_mark_reviewed', { p_session_id: row.id, p_note: note }), 'Marked reviewed')) onChanged();
   }
 
-  const loc = (label: string, s: LocationStatus | null, lat: number | null, lng: number | null, acc: number | null) => {
-    const link = mapsLink(lat, lng);
-    return (
-      <div className="text-sm">
-        <span className="text-gray-500">{label}:</span> {s ? <StatusBadge status={s} /> : '—'}
-        {lat != null && <> {Number(lat).toFixed(5)}, {Number(lng).toFixed(5)} {acc != null && `(±${Math.round(Number(acc))} m)`}</>}
-        {link && <> · <a className="text-brand-700 underline" href={link} target="_blank" rel="noreferrer">map</a></>}
-      </div>
-    );
-  };
-
   return (
     <Modal open wide title={`${row.employee_name} · ${dateOnly(row.work_date)}`} onClose={onClose}
       footer={row.status !== 'voided' && <>
@@ -155,9 +174,9 @@ function SessionDetail({ row, onClose, onChanged }: { row: WorkSessionRow; onClo
           <div><span className="text-gray-500">Elapsed:</span> {hm(row.elapsed_minutes)}</div>
           <div><span className="text-gray-500">Status:</span> <StatusBadge status={row.status} /> {row.source === 'correction' && <Badge tone="purple">entered by staff</Badge>}</div>
         </div>
-        <div className="space-y-1">
-          {loc('In location', row.in_location_status, row.in_latitude, row.in_longitude, row.in_accuracy_m)}
-          {loc('Out location', row.out_location_status, row.out_latitude, row.out_longitude, row.out_accuracy_m)}
+        <div className="space-y-2">
+          <LocationLine label="In location" status={row.in_location_status} lat={row.in_latitude} lng={row.in_longitude} acc={row.in_accuracy_m} />
+          <LocationLine label="Out location" status={row.out_location_status} lat={row.out_latitude} lng={row.out_longitude} acc={row.out_accuracy_m} />
           <div className="text-sm"><span className="text-gray-500">Device:</span> {row.in_device_label ?? '—'}</div>
           <div className="text-sm"><span className="text-gray-500">Flags:</span> {row.review_flags.join(', ') || 'none'} {row.reviewed_at && `· reviewed ${dateTime(row.reviewed_at)}`}</div>
           {row.review_note && <div className="text-sm"><span className="text-gray-500">Note:</span> {row.review_note}</div>}

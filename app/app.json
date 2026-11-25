@@ -16,7 +16,7 @@
     "android": {
       "package": "com.insync.attendance",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#2459BD",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -32,7 +32,13 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "Insync Attendance",
+      "shortName": "Insync",
+      "themeColor": "#1565C0",
+      "backgroundColor": "#FFFFFF"
     },
     "plugins": [
       "expo-secure-store",
@@ -47,7 +53,11 @@
           "isAndroidBackgroundLocationEnabled": false,
           "isAndroidForegroundServiceEnabled": false
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "baseUrl": "/site"
+    }
   }
 }

@@ -48,7 +48,7 @@ export function Leave() {
     <div className="space-y-4">
       <PageHeader title="Leave" subtitle="Staff record leave for employees. Approved paid leave is paid without a clock-in and reduces the balance."
         actions={<Button variant="primary" onClick={() => setCreating(true)}>Record leave</Button>} />
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar">
         <Field label="Show" className="w-44">
           <Select value={status} onChange={(e) => setStatus(e.target.value as 'pending' | 'all')}>
             <option value="pending">Pending approval</option><option value="all">All</option>

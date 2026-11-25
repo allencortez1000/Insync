@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, useIsWide } from './ui';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Icon, colors, useIsWide } from './ui';
 
 type Key = { kind: 'digit'; value: string } | { kind: 'clear' } | { kind: 'back' };
 
@@ -23,12 +23,14 @@ export function Keypad({
   disabled?: boolean;
 }) {
   const wide = useIsWide();
-  const keyHeight = wide ? 96 : 76;
+  const { height } = useWindowDimensions();
+  // Shrink keys on short screens so the whole PIN screen fits without scrolling.
+  const keyHeight = Math.max(54, Math.min(wide ? 88 : 72, Math.floor((height - 430) / 4.4)));
 
   return (
     <View style={[styles.grid, { maxWidth: wide ? 440 : 360 }]}>
       {KEYS.map((key, index) => {
-        const label = key.kind === 'digit' ? key.value : key.kind === 'clear' ? 'Clear\nBurahin' : '⌫';
+        const label = key.kind === 'digit' ? key.value : 'Clear';
         const a11y = key.kind === 'digit' ? key.value : key.kind === 'clear' ? 'Clear PIN' : 'Delete last digit';
         const onPress = key.kind === 'digit' ? () => onDigit(key.value) : key.kind === 'clear' ? onClear : onBackspace;
         return (
@@ -46,15 +48,11 @@ export function Keypad({
                 disabled && styles.keyDisabled,
               ]}
             >
-              <Text
-                style={[
-                  styles.keyText,
-                  key.kind === 'clear' && styles.keyTextSmall,
-                  { fontSize: key.kind === 'digit' ? (wide ? 38 : 32) : key.kind === 'back' ? 30 : 15 },
-                ]}
-              >
-                {label}
-              </Text>
+              {key.kind === 'back' ? (
+                <Icon name="backspace-outline" size={30} color={colors.text} />
+              ) : (
+                <Text style={[styles.keyText, { fontSize: key.kind === 'digit' ? (wide ? 36 : 30) : 16 }]}>{label}</Text>
+              )}
             </Pressable>
           </View>
         );
@@ -67,16 +65,15 @@ const styles = StyleSheet.create({
   grid: { width: '100%', alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: '33.333%', padding: 6 },
   key: {
-    borderRadius: 16,
+    borderRadius: 18,
     backgroundColor: colors.surface,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  keyAlt: { backgroundColor: '#E4E7EC' },
-  keyPressed: { backgroundColor: '#C7D7FE', borderColor: colors.primary },
+  keyAlt: { backgroundColor: '#E9EDF3' },
+  keyPressed: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   keyDisabled: { opacity: 0.5 },
   keyText: { color: colors.text, fontWeight: '700' },
-  keyTextSmall: { textAlign: 'center', lineHeight: 18 },
 });

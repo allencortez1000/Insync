@@ -42,3 +42,6 @@ yarn-error.*
 
 # Supabase keys for this device app
 .env
+
+# Netlify CLI local state
+.netlify/

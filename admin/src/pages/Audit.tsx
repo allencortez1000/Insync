@@ -40,7 +40,7 @@ export function Audit() {
   return (
     <div className="space-y-4">
       <PageHeader title="Audit log" subtitle="Every change to people, pay, policies and access, with the actor. Secrets are never logged." />
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar">
         <Field label="From"><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
         <Field label="To"><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></Field>
         <Field label="Record type" className="w-56">
