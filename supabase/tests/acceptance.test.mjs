@@ -636,4 +636,204 @@ await test('from the start (construction): new site → employee → PIN → app
   assert.ok(num(audit) > 0);
 });
 
+// ---------------------------------------------------------------------------
+// Employee accounts (self-service portal) and 13th month pay
+// ---------------------------------------------------------------------------
+await test('employee portal: account → sign in → attendance, leave request, payslip, 13th month; view-only and isolated', async () => {
+  await su(`update payroll_settings set calc_mode = 'construction', ot_review_required = false`);
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const ph = new Date(Date.now() + 8 * 3600 * 1000);                       // Manila wall clock as a UTC date
+  const work = new Date(ph); work.setUTCDate(work.getUTCDate() - 2);
+  if (work.getUTCDay() === 0) work.setUTCDate(work.getUTCDate() - 1);      // not a Sunday
+  const leaveDay = new Date(ph); leaveDay.setUTCDate(leaveDay.getUTCDate() + 10);
+  while (leaveDay.getUTCDay() !== 3) leaveDay.setUTCDate(leaveDay.getUTCDate() + 1);   // a Wednesday
+  const workDate = iso(work), leaveDate = iso(leaveDay);
+
+  const site = await one(admin(`insert into sites (name) values ('Portal Test Site') returning id`));
+  const mk = async (first) => {
+    const e = await one(admin(`insert into employees (first_name, last_name, hire_date) values ($1, 'Portal', '2025-01-01') returning id, employee_code`, [first]));
+    await admin(`insert into employee_rates (employee_id, daily_rate, effective_from) values ($1, 800, '2025-01-01')`, [e.id]);
+    await admin(`select employee_assign_site($1, $2, '2026-01-01T00:00:00+08:00', 'initial')`, [e.id, site.id]);
+    return e;
+  };
+  const emp = await mk('Ana');
+  const other = await mk('Ben');
+  for (const e of [emp, other]) {
+    await admin(`select attendance_create_session($1, $2, $3, $4, 'portal test')`,
+      [e.id, site.id, `${workDate}T08:00:00+08:00`, `${workDate}T19:00:00+08:00`]);
+  }
+  const sil = await val(admin(`select id from leave_types where code = 'SIL'`));
+  await admin(`insert into leave_ledger (employee_id, leave_type_id, days, kind, created_by) values ($1, $2, 5, 'grant', $3)`, [emp.id, sil, ADMIN]);
+
+  // The account is the employee's name + attendance PIN: no PIN yet → no sign-in.
+  const PIN_ANA = '482915', PIN_BEN = '739164', PIN_TWIN = '615243';
+  assert.equal((await val(anon(`select emp_login('Ana Portal', $1)`, [PIN_ANA]))).code, 'INVALID_LOGIN');
+  await admin(`select set_employee_pin($1, $2)`, [emp.id, PIN_ANA]);
+  await admin(`select set_employee_pin($1, $2)`, [other.id, PIN_BEN]);
+  assert.equal((await val(anon(`select emp_login('Ana Portal', '111112')`))).code, 'INVALID_LOGIN');
+  assert.equal((await val(anon(`select emp_login('Nobody Here', $1)`, [PIN_ANA]))).code, 'INVALID_LOGIN');
+  const login = await val(anon(`select emp_login('  ana   PORTAL ', $1, 'Test phone')`, [PIN_ANA]));
+  assert.equal(login.ok, true, JSON.stringify(login));
+  assert.equal(login.employee.id, emp.id);
+  const tok = login.token;
+  assert.equal((await val(anon(`select emp_login($1, $2)`, [emp.employee_code.toLowerCase(), PIN_ANA]))).ok, true, 'employee code also works');
+
+  // Two employees with the same name: the PIN tells them apart, and the other one is not penalised.
+  const twin = await mk('Ana');
+  await admin(`select set_employee_pin($1, $2)`, [twin.id, PIN_TWIN]);
+  assert.equal((await val(anon(`select emp_login('Ana Portal', $1)`, [PIN_TWIN]))).employee.id, twin.id);
+  assert.equal((await val(anon(`select emp_login('Ana Portal', $1)`, [PIN_ANA]))).employee.id, emp.id);
+  assert.equal(num(await val(admin(`select coalesce(sum(failed_attempts), 0) from employee_portal_accounts where employee_id in ($1, $2)`, [emp.id, twin.id]))), 0);
+
+  const me = await val(anon(`select emp_me($1)`, [tok]));
+  assert.equal(me.employee.name, 'Ana Portal');
+  assert.equal(me.employee.site_name, 'Portal Test Site');
+  assert.equal(num(me.leave_types.find((t) => t.code === 'SIL').balance_days), 5);
+
+  // Attendance is visible (read only): the day, both times, 2 h of overtime.
+  const att = await val(anon(`select emp_attendance($1)`, [tok]));
+  const day = att.days.find((d) => d.date === workDate);
+  assert.equal(day.status, 'present');
+  assert.equal(day.sessions.length, 1);
+  assert.equal(day.worked_minutes, 600);
+  assert.equal(day.ot.recorded_minutes, 120);
+  assert.equal(day.ot.status, 'counted');
+  assert.equal(att.summary.present, 1);
+  await rejects(anon(`select * from work_sessions`), /permission denied/, 'portal has no table access');
+  await rejects(anon(`select * from employee_portal_accounts`), /permission denied/, 'accounts not readable by anon');
+  assert.equal(num(await val(admin(`select count(*) from employee_portal_accounts where employee_id = $1 and is_enabled`, [emp.id]))), 1);
+
+  // Leave: request → staff sees it as filed by the employee → approve → employee sees the status.
+  assert.equal((await val(anon(`select emp_leave_request($1, $2, $3, $3, 8, '')`, [tok, sil, leaveDate]))).code, 'BAD_REQUEST');
+  const req = await val(anon(`select emp_leave_request($1, $2, $3, $3, 8, 'Family event')`, [tok, sil, leaveDate]));
+  assert.equal(req.ok, true, JSON.stringify(req));
+  assert.equal(req.days, 1);
+  assert.equal((await val(anon(`select emp_leave_request($1, $2, $3, $3, 8, 'Again')`, [tok, sil, leaveDate]))).code, 'DUPLICATE');
+  const entry = await one(admin(`select id, status, source, created_by from leave_entries where employee_id = $1 and leave_date = $2`, [emp.id, leaveDate]));
+  assert.equal(entry.status, 'pending');
+  assert.equal(entry.source, 'employee');
+  await admin(`select leave_decide($1, true, 'Enjoy')`, [entry.id]);
+  const mine = await val(anon(`select emp_leave_list($1)`, [tok]));
+  assert.equal(mine.entries[0].status, 'approved');
+  assert.equal(mine.entries[0].decision_note, 'Enjoy');
+  assert.equal((await val(anon(`select emp_leave_cancel($1, $2)`, [tok, entry.id]))).code, 'NOT_PENDING');
+  assert.equal(num((await val(anon(`select emp_me($1)`, [tok]))).leave_types.find((t) => t.code === 'SIL').balance_days), 4);
+
+  // Payroll → own payslip only; 13th month = basic salary ÷ 12 (overtime is not basic).
+  const per = await val(admin(`select payroll_ensure_period($1::date)`, [workDate]));
+  const year = Number(String(await val(admin(`select end_date::text from payroll_periods where id = $1`, [per]))).slice(0, 4));
+  const run = await val(admin(`select payroll_create_run($1, array[$2]::uuid[])`, [per, site.id]));
+  const calc = await val(admin(`select payroll_calculate($1)`, [run]));
+  assert.equal(num(calc.blocking), 0, JSON.stringify(await exc(run)));
+  assert.equal(num((await val(anon(`select emp_thirteenth_month($1, $2)`, [tok, year]))).basic_earned), 0, 'draft payroll does not count');
+  await admin(`select payroll_submit($1)`, [run]);
+  assert.equal((await val(admin(`select payroll_finalize($1, $2)`, [run, calc.net]))).ok, true);
+  const slips = await val(anon(`select emp_payslips($1)`, [tok]));
+  assert.equal(slips.payslips.length, 1);
+  assert.equal(num(slips.payslips[0].net_pay), 1050);                      // 800 + 2 h × 125
+  const slip = await val(anon(`select emp_payslip($1, $2)`, [tok, slips.payslips[0].id]));
+  assert.equal(slip.slip.snapshot.employee.name, 'Ana Portal');
+  const otherSlip = await val(admin(`select id from payslips where run_id = $1 and employee_id = $2`, [run, other.id]));
+  assert.equal((await val(anon(`select emp_payslip($1, $2)`, [tok, otherSlip]))).code, 'NOT_FOUND');
+  const tm = await val(anon(`select emp_thirteenth_month($1, $2)`, [tok, year]));
+  assert.equal(num(tm.basic_earned), 800);
+  assert.equal(num(tm.thirteenth_month), 66.67);
+  const rep = await admin(`select * from thirteenth_month_report($1) where employee_id = $2`, [year, emp.id]);
+  assert.equal(num(rep[0].basic_earned), 800);
+  assert.equal(num(rep[0].thirteenth_month), 66.67);
+  assert.equal(rep[0].site_name, 'Portal Test Site');
+  assert.equal((await staff(`select * from thirteenth_month_report($1) where employee_id = $2`, [year, emp.id])).length, 0, 'staff outside the site scope');
+  await rejects(anon(`select * from thirteenth_month_report($1)`, [year]), /permission denied/, 'anon report');
+
+  // Wrong PINs on the portal lock only the portal; the attendance PIN itself is never locked by it.
+  for (let i = 0; i < 4; i++) assert.equal((await val(anon(`select emp_login('Ben Portal', '000001')`))).code, 'INVALID_LOGIN');
+  assert.equal((await val(anon(`select emp_login('Ben Portal', '000001')`))).code, 'ACCOUNT_LOCKED');
+  assert.equal((await val(anon(`select emp_login('Ben Portal', $1)`, [PIN_BEN]))).code, 'ACCOUNT_LOCKED');
+  assert.equal(num(await val(admin(`select count(*) from pin_credentials where locked_until is not null or failed_attempts > 0`))), 0);
+  await admin(`select admin_set_portal_enabled($1, true)`, [other.id]);                    // staff unlock
+  assert.equal((await val(anon(`select emp_login('Ben Portal', $1)`, [PIN_BEN]))).ok, true);
+
+  // Disabling ends the session; enabling restores access. Resetting the PIN signs the portal out too.
+  await admin(`select admin_set_portal_enabled($1, false)`, [emp.id]);
+  assert.equal((await val(anon(`select emp_me($1)`, [tok]))).code, 'SESSION_INVALID');
+  assert.equal((await val(anon(`select emp_login('Ana Portal', $1)`, [PIN_ANA]))).code, 'ACCOUNT_DISABLED');
+  await admin(`select admin_set_portal_enabled($1, true)`, [emp.id]);
+  const again = await val(anon(`select emp_login('Ana Portal', $1)`, [PIN_ANA]));
+  assert.equal(again.ok, true);
+  await admin(`select set_employee_pin($1, '905173')`, [emp.id]);
+  assert.equal((await val(anon(`select emp_me($1)`, [again.token]))).code, 'SESSION_INVALID');
+  assert.equal((await val(anon(`select emp_login('Ana Portal', $1)`, [PIN_ANA]))).code, 'INVALID_LOGIN');
+  assert.equal((await val(anon(`select emp_login('Ana Portal', '905173')`))).ok, true);
+});
+
+// ---------------------------------------------------------------------------
+// Face recognition for Clock In / Clock Out
+// ---------------------------------------------------------------------------
+await test('face recognition: enroll in the employee account → Clock In by face on the site device; PIN still works; templates stay private', async () => {
+  // Deterministic stand-ins for face templates (128 numbers): one "person" = a base vector, each picture = base + small noise.
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  const person = () => Array.from({ length: 128 }, () => (rnd() - 0.5) * 0.3);
+  const picture = (base) => base.map((v) => v + (rnd() - 0.5) * 0.02);
+  const ana = person(), stranger = person();
+
+  const site = await one(admin(`insert into sites (name) values ('Face Test Site') returning id`));
+  await admin(`select admin_set_site_password($1, 'face-site-pass-1')`, [site.id]);
+  const emp = await one(admin(`insert into employees (first_name, last_name, hire_date) values ('Carla', 'Facetest', '2025-01-01') returning id`));
+  await admin(`insert into employee_rates (employee_id, daily_rate, effective_from) values ($1, 700, '2025-01-01')`, [emp.id]);
+  await admin(`select employee_assign_site($1, $2, '2026-01-01T00:00:00+08:00', 'initial')`, [emp.id, site.id]);
+  await admin(`select set_employee_pin($1, '583927')`, [emp.id]);
+
+  // The employee records the face in their own account (name + PIN).
+  const me = await val(anon(`select emp_login('Carla Facetest', '583927')`));
+  assert.equal(me.ok, true, JSON.stringify(me));
+  assert.equal((await val(anon(`select emp_face_status($1)`, [me.token]))).enrolled, false);
+  assert.equal((await val(anon(`select emp_face_enroll($1, $2::jsonb)`, [me.token, JSON.stringify([picture(ana), picture(ana)])]))).code, 'BAD_REQUEST');
+  assert.equal((await val(anon(`select emp_face_enroll($1, $2::jsonb)`, [me.token, JSON.stringify([picture(ana), picture(ana), [1, 2, 3]])]))).code, 'BAD_REQUEST');
+  assert.equal((await val(anon(`select emp_face_enroll($1, $2::jsonb)`, [me.token, JSON.stringify([picture(ana), picture(ana), picture(stranger)])]))).code, 'FACE_INCONSISTENT');
+  const enrolled = await val(anon(`select emp_face_enroll($1, $2::jsonb)`, [me.token, JSON.stringify([picture(ana), picture(ana), picture(ana)])]));
+  assert.equal(enrolled.ok, true, JSON.stringify(enrolled));
+  assert.equal(num(enrolled.samples), 3);
+  assert.equal((await val(anon(`select emp_face_status($1)`, [me.token]))).enrolled, true);
+
+  // Templates are never readable; staff only see that a face exists.
+  await rejects(anon(`select * from employee_faces`), /permission denied/, 'anon faces');
+  await rejects(admin(`select descriptor from employee_faces`), /permission denied/, 'staff cannot read templates');
+  assert.equal(num(await val(admin(`select count(id) from employee_faces where employee_id = $1`, [emp.id]))), 3);
+
+  // Site device: the roster marks the employee; a stranger's face is refused, the right face is accepted.
+  const dev = await val(anon(`select site_login('Face Test Site', 'face-site-pass-1', 'Test phone', 'web', '1.0.0')`));
+  const roster = await val(anon(`select site_roster($1)`, [dev.token]));
+  assert.equal(roster.employees[0].has_face, true);
+  assert.equal(roster.employees[0].has_pin, true);
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(stranger))]))).code, 'FACE_MISMATCH');
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([0.1, 0.2])]))).code, 'BAD_REQUEST');
+  const v = await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]));
+  assert.equal(v.ok, true, JSON.stringify(v));
+  assert.equal(v.next_action, 'clock_in');
+  assert.equal(v.method, 'face');
+  const loc = JSON.stringify({ status: 'captured', latitude: 14.676, longitude: 120.536, accuracy_m: 8, age_ms: 900 });
+  const pIn = await val(anon(`select site_punch($1, $2, 'clock_in', gen_random_uuid(), $3::jsonb, now())`, [dev.token, v.auth_token, loc]));
+  assert.equal(pIn.ok, true, JSON.stringify(pIn));
+  assert.equal((await val(anon(`select site_punch($1, $2, 'clock_in', gen_random_uuid(), $3::jsonb, now())`, [dev.token, v.auth_token, loc]))).code, 'PIN_EXPIRED', 'authorization is single use');
+
+  // Clock Out with the PIN still works (fallback), and each punch records how it was verified.
+  await su(`update work_sessions set clock_in_at = clock_in_at - interval '9 hours' where id = $1`, [pIn.work_session_id]);
+  const v2 = await val(anon(`select site_verify_pin($1, $2, '583927')`, [dev.token, emp.id]));
+  assert.equal(v2.next_action, 'clock_out');
+  const pOut = await val(anon(`select site_punch($1, $2, 'clock_out', gen_random_uuid(), $3::jsonb, now())`, [dev.token, v2.auth_token, loc]));
+  assert.equal(pOut.ok, true, JSON.stringify(pOut));
+  const w = await one(admin(`select in_auth_method, out_auth_method, status from v_work_sessions where id = $1`, [pIn.work_session_id]));
+  assert.deepEqual([w.in_auth_method, w.out_auth_method, w.status], ['face', 'pin', 'closed']);
+
+  // A face authorization does not depend on the PIN, and staff can remove the face.
+  await admin(`select set_employee_pin($1, '274916')`, [emp.id]);            // resetting the PIN does not affect the face
+  const v3 = await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]));
+  assert.equal((await val(anon(`select site_punch($1, $2, 'clock_in', gen_random_uuid(), $3::jsonb, now())`, [dev.token, v3.auth_token, loc]))).ok, true);
+  await rejects(anon(`select admin_clear_face($1)`, [emp.id]), /permission denied/, 'anon cannot remove faces');
+  await admin(`select admin_clear_face($1)`, [emp.id]);
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]))).code, 'FACE_NOT_ENROLLED');
+  assert.equal((await val(anon(`select site_roster($1)`, [dev.token]))).employees[0].has_face, false);
+});
+
 console.log(`\n${passed} passed${process.exitCode ? ', some FAILED' : ''}`);

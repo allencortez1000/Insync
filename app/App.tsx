@@ -13,6 +13,7 @@ import {
   sitePunch,
   siteRoster,
   siteSessionInfo,
+  siteVerifyFace,
   siteVerifyPin,
   type Failure,
   type PunchAction,
@@ -21,11 +22,13 @@ import {
   type RpcResult,
   type VerifyPinOk,
 } from './src/lib/api';
+import { faceSupported } from './src/lib/face';
 import { captureLocation, ensureLocationPermission, toPayload, type LocationReading } from './src/lib/location';
 import { clearSession, loadSession, saveSession, type StoredSession } from './src/lib/storage';
 import { supabaseConfigured } from './src/lib/supabase';
 import { formatManilaDateTime, formatManilaTime, localDeadline } from './src/lib/time';
 import { ConfirmScreen, type ConfirmPhase } from './src/screens/ConfirmScreen';
+import { FaceScreen, type FaceResult } from './src/screens/FaceScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { MessageScreen } from './src/screens/MessageScreen';
 import { PinScreen } from './src/screens/PinScreen';
@@ -48,6 +51,7 @@ type ScreenState =
   | { name: 'login'; notice?: Bi }
   | { name: 'roster'; notice?: Bi }
   | { name: 'pin'; employee: RosterEmployee; notice?: Bi }
+  | { name: 'face'; employee: RosterEmployee; notice?: Bi }
   | {
       name: 'confirm';
       key: number;
@@ -206,6 +210,7 @@ function Main() {
       const cur = screenRef.current;
       switch (cur.name) {
         case 'pin':
+        case 'face':
         case 'message':
         case 'success':
           goRoster();
@@ -245,7 +250,60 @@ function Main() {
   }, [goLogin, setSession]);
 
   // ---------------------------------------------------------------- PIN
-  const selectEmployee = useCallback((employee: RosterEmployee) => show({ name: 'pin', employee }), [show]);
+  // Employees who recorded their face are checked by the camera; everyone else types the PIN.
+  const askWho = useCallback(
+    (employee: RosterEmployee, notice?: Bi) =>
+      show({ name: faceSupported && employee.has_face ? 'face' : 'pin', employee, notice }),
+    [show],
+  );
+  const selectEmployee = useCallback((employee: RosterEmployee) => askWho(employee), [askWho]);
+
+  const verifyFace = useCallback(
+    async (employee: RosterEmployee, descriptor: number[]): Promise<FaceResult> => {
+      const s = sessionRef.current;
+      if (!s) return { kind: 'done' };
+      const f = flow.current;
+      const result = await siteVerifyFace(s.token, employee.id, descriptor);
+      if (flow.current !== f) return { kind: 'done' };
+
+      if (result.kind === 'network') return { kind: 'error', lines: [t.networkError] };
+      if (result.kind === 'error') return { kind: 'error', lines: [t.serverError] };
+      if (result.kind === 'ok') {
+        show({
+          name: 'confirm',
+          key: Date.now(),
+          employee,
+          auth: result.data,
+          authDeadline: localDeadline(result.data.server_time, result.data.expires_at),
+          phase: 'idle',
+        });
+        return { kind: 'done' };
+      }
+
+      const failure = result.failure;
+      switch (failure.code) {
+        case 'SESSION_INVALID':
+          void sessionInvalid();
+          return { kind: 'done' };
+        case 'FACE_MISMATCH':
+          return { kind: 'mismatch' };
+        case 'FACE_NOT_ENROLLED':
+          // The face was removed since the list was loaded: fall back to the PIN.
+          show({ name: 'pin', employee, notice: errorText(failure.code) });
+          return { kind: 'done' };
+        case 'OPEN_AT_OTHER_SITE':
+          showMessage(errorText(failure.code), { detail: openSessionDetail(failure), tone: 'warn' });
+          return { kind: 'done' };
+        case 'DEVICE_LOCKED':
+        case 'NOT_ON_ROSTER':
+          showMessage(errorText(failure.code));
+          return { kind: 'done' };
+        default:
+          return { kind: 'error', lines: [errorText(failure.code)] };
+      }
+    },
+    [sessionInvalid, show, showMessage],
+  );
 
   const verifyPin = useCallback(
     async (employee: RosterEmployee, pin: string): Promise<Bi[] | null> => {
@@ -322,7 +380,7 @@ function Main() {
           void sessionInvalid();
           return;
         case 'PIN_EXPIRED':
-          show({ name: 'pin', employee: pending.employee, notice: errorText('PIN_EXPIRED') });
+          askWho(pending.employee, faceSupported && pending.employee.has_face ? t.faceTimedOut : errorText('PIN_EXPIRED'));
           return;
         case 'RETRY':
           if (Date.now() < pending.authDeadline - 3000) {
@@ -336,7 +394,7 @@ function Main() {
               notice: errorText('RETRY'),
             });
           } else {
-            show({ name: 'pin', employee: pending.employee, notice: errorText('RETRY') });
+            askWho(pending.employee, errorText('RETRY'));
           }
           return;
         case 'ALREADY_CLOCKED_IN':
@@ -466,6 +524,20 @@ function Main() {
           employee={employee}
           notice={screen.notice}
           onSubmit={(pin) => verifyPin(employee, pin)}
+          onBack={backToRoster}
+        />
+      );
+    }
+
+    case 'face': {
+      const employee = screen.employee;
+      return (
+        <FaceScreen
+          key={employee.id}
+          employee={employee}
+          notice={screen.notice}
+          onVerify={(descriptor) => verifyFace(employee, descriptor)}
+          onUsePin={employee.has_pin === false ? undefined : () => show({ name: 'pin', employee })}
           onBack={backToRoster}
         />
       );

@@ -34,7 +34,12 @@ export function PayslipView() {
     return <div className="mx-auto max-w-xl p-6"><ErrorBox error={data.error ?? 'Payslip not found'} /></div>;
   }
 
-  const { slip, payment } = data.data;
+  return <PayslipDocument slip={data.data.slip} payment={data.data.payment}
+    back={<Link to="/payslips" className="text-sm text-brand-600 hover:underline">← Payslips</Link>} />;
+}
+
+/** The printable payslip. Also used by the employee portal for the employee's own payslips. */
+export function PayslipDocument({ slip, payment, back }: { slip: Payslip; payment: PaymentRecord | null; back: ReactNode }) {
   const s = slip.snapshot;
   const emp = s.employee ?? {};
   const t = s.totals;
@@ -48,7 +53,7 @@ export function PayslipView() {
   return (
     <div className="min-h-full bg-gray-100 py-4 sm:py-8">
       <div className="no-print mx-auto mb-3 flex max-w-3xl items-center justify-between px-4">
-        <Link to="/payslips" className="text-sm text-brand-600 hover:underline">← Payslips</Link>
+        {back}
         <Button variant="primary" onClick={() => window.print()}>Print / Save as PDF</Button>
       </div>
 

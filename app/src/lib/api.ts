@@ -17,6 +17,8 @@ export type ErrorCode =
   | 'PIN_LOCKED'
   | 'DEVICE_LOCKED'
   | 'PIN_EXPIRED'
+  | 'FACE_MISMATCH'
+  | 'FACE_NOT_ENROLLED'
   | 'OPEN_AT_OTHER_SITE'
   | 'ALREADY_CLOCKED_IN'
   | 'NOT_CLOCKED_IN'
@@ -76,6 +78,9 @@ export interface RosterEmployee {
   name: string;
   first_name: string;
   last_name: string;
+  /** The employee recorded their face in their employee account: verify by face instead of PIN. */
+  has_face?: boolean;
+  has_pin?: boolean;
 }
 
 export interface RosterOk {
@@ -173,6 +178,11 @@ export function siteRoster(token: string) {
 
 export function siteVerifyPin(token: string, employeeId: string, pin: string) {
   return call<VerifyPinOk>('site_verify_pin', { p_token: token, p_employee_id: employeeId, p_pin: pin });
+}
+
+/** Face instead of PIN: the server compares the template with the employee's recorded face. */
+export function siteVerifyFace(token: string, employeeId: string, descriptor: number[]) {
+  return call<VerifyPinOk>('site_verify_face', { p_token: token, p_employee_id: employeeId, p_descriptor: descriptor });
 }
 
 export function sitePunch(

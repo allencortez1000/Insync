@@ -112,7 +112,7 @@ try {
   console.log('  tables/views anon can touch:', tb.rows.map((r) => r.relname).join(', ') || '(none)');
   console.log('  tables without RLS         :', noRls.rows.map((r) => r.relname).join(', ') || '(none)');
   console.log('  internal fns callable by authenticated:', internal.rows.map((r) => r.proname).join(', ') || '(none)');
-  const bad = fn.rows.filter((r) => !r.proname.startsWith('site_')).length + tb.rows.length + noRls.rows.length + internal.rows.length;
+  const bad = fn.rows.filter((r) => !r.proname.startsWith('site_') && !r.proname.startsWith('emp_')).length + tb.rows.length + noRls.rows.length + internal.rows.length;
   if (bad) { console.error('✗ lock-down audit FAILED'); code = 1; } else console.log('✓ lock-down audit passed');
 } catch (e) {
   console.error(e);

@@ -56,7 +56,7 @@ export function EmployeeDetail() {
               {e.open_since && <Badge tone="blue">clocked in since {dateTime(e.open_since)}</Badge>}
             </span>} />
           <Tabs<Tab> value={tab} onChange={setTab} tabs={[
-            { id: 'profile', label: 'Profile' }, { id: 'site', label: 'Site & PIN' }, { id: 'pay', label: 'Rate & schedule' },
+            { id: 'profile', label: 'Profile' }, { id: 'site', label: 'Site, PIN & account' }, { id: 'pay', label: 'Rate & schedule' },
             { id: 'deductions', label: 'Deductions' },
             { id: 'leave', label: 'Leave' }, { id: 'attendance', label: 'Attendance' },
           ]} />
@@ -205,6 +205,8 @@ function SiteTab({ emp, onChanged }: { emp: EmployeeOverview; onChanged: () => v
         </div>
       </Card>
 
+      <PortalAccountCard emp={emp} />
+
       <Modal open={transfer !== null} title={emp.current_site_id ? 'Transfer employee' : 'Assign to site'} onClose={() => setTransfer(null)}
         footer={<><Button onClick={() => setTransfer(null)}>Cancel</Button><Button variant="primary" disabled={!transfer?.site_id || !transfer.from} onClick={() => void doTransfer()}>Save</Button></>}>
         {transfer && (
@@ -242,6 +244,67 @@ function SiteTab({ emp, onChanged }: { emp: EmployeeOverview; onChanged: () => v
         </Field>
       </Modal>
     </div>
+  );
+}
+
+interface PortalAccount { employee_id: string; is_enabled: boolean; locked_until: string | null; last_login_at: string | null }
+
+/**
+ * The employee's own account on the employee website (/employee): they sign in with their name and
+ * attendance PIN to see their attendance, overtime, leave, payslips and 13th month pay.
+ */
+function PortalAccountCard({ emp }: { emp: EmployeeOverview }) {
+  const { run, confirm } = useFeedback();
+  const acct = useAsync(() => q<PortalAccount | null>(supabase.from('employee_portal_accounts')
+    .select('employee_id, is_enabled, locked_until, last_login_at').eq('employee_id', emp.id).maybeSingle()), [emp.id]);
+  const faces = useAsync(() => q<{ id: string; created_at: string }[]>(supabase.from('employee_faces')
+    .select('id, created_at').eq('employee_id', emp.id)), [emp.id]);
+  const a = acct.data;
+  const enabled = a?.is_enabled ?? true;
+  const locked = !!a?.locked_until && new Date(a.locked_until) > new Date();
+
+  async function clearFace() {
+    if (!(await confirm({ title: 'Remove the recorded face?', confirmText: 'Remove face', danger: true,
+      message: 'The employee goes back to the PIN at Clock In / Clock Out until they record their face again in their employee account.' }))) return;
+    if (await run(() => rpc('admin_clear_face', { p_employee_id: emp.id }), 'Face removed')) faces.reload();
+  }
+  async function setEnabled(value: boolean, done: string) {
+    if (await run(() => rpc('admin_set_portal_enabled', { p_employee_id: emp.id, p_enabled: value }), done)) acct.reload();
+  }
+
+  return (
+    <Card title="Employee account" className="lg:col-span-2">
+      <div className="space-y-3 text-sm">
+        <ErrorBox error={acct.error} />
+        <div className="flex flex-wrap items-center gap-2">Status:{' '}
+          {!emp.is_active ? <Badge>employee inactive — no access</Badge>
+            : !emp.has_pin ? <Badge tone="amber">no PIN yet — set a PIN above to give access</Badge>
+            : !enabled ? <Badge tone="red">disabled</Badge>
+            : locked ? <Badge tone="red">locked until {dateTime(a?.locked_until)}</Badge>
+            : <Badge tone="green">active</Badge>}
+          {emp.has_pin && <span className="text-xs text-gray-500">{a?.last_login_at ? `last sign-in ${dateTime(a.last_login_at)}` : 'never signed in'}</span>}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">Face for Clock In / Out:{' '}
+          {faces.data?.length
+            ? <><Badge tone="green">recorded</Badge><span className="text-xs text-gray-500">{dateTime(faces.data[0]!.created_at)} — the site device checks the face instead of the PIN</span></>
+            : <><Badge>not recorded</Badge><span className="text-xs text-gray-500">the employee records it in their employee account; until then they use the PIN</span></>}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {!!faces.data?.length && <Button onClick={() => void clearFace()}>Remove face</Button>}
+          {locked && enabled && <Button variant="primary" onClick={() => void setEnabled(true, 'Account unlocked')}>Unlock</Button>}
+          {enabled
+            ? <Button disabled={!emp.has_pin} onClick={() => void setEnabled(false, 'Account disabled')}>Disable account</Button>
+            : <Button variant="primary" onClick={() => void setEnabled(true, 'Account enabled')}>Enable account</Button>}
+        </div>
+        <p className="text-xs text-gray-500">
+          The employee signs in at <b>{window.location.origin}/employee</b> with their name (<b>{emp.display_name}</b>) or employee code
+          (<b className="font-mono">{emp.employee_code}</b>) and their attendance PIN. They can see their own clock in / clock out records,
+          attendance status, overtime, payslips and 13th month pay, and request leave. They cannot clock in or out there — that stays on the
+          site's attendance device — and cannot change any record. Resetting the PIN signs the account out everywhere. Wrong PINs typed on
+          the employee website never lock the PIN on the attendance device.
+        </p>
+      </div>
+    </Card>
   );
 }
 

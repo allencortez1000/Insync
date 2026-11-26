@@ -33,6 +33,18 @@ export const t = {
   locationRequiredNotice: bi('Location must be turned on to record attendance.'),
   locationReviewNotice: bi('If location is unavailable, attendance is still saved and staff will review it.'),
 
+  // Face check (instead of the PIN, for employees who recorded their face)
+  lookAtCamera: bi('Look at the camera'),
+  faceStarting: bi('Starting the camera…'),
+  faceChecking: bi('Checking your face…'),
+  faceTimedOut: bi('Time ran out. Look at the camera again.'),
+  faceNotRecognized: bi('Face not recognized. Keep looking at the camera.'),
+  faceFailed: bi('Face not recognized'),
+  faceFailedHint: bi('Use good light and take off your cap, mask or dark glasses, then try again. If it still fails, please see staff.'),
+  faceNoCamera: bi('The camera cannot be used'),
+  faceEngineFailed: bi('The face check could not start on this device.'),
+  usePinInstead: bi('Use PIN instead'),
+
   // PIN
   enterPin: bi('Enter your PIN'),
   checkingPin: bi('Checking…'),
@@ -129,6 +141,10 @@ export function errorText(code: ErrorCode | string): Bi {
       return bi('Too many wrong PINs on this device. Wait 15 minutes or see staff.');
     case 'PIN_EXPIRED':
       return bi('Please enter your PIN again.');
+    case 'FACE_MISMATCH':
+      return bi('Face not recognized. Keep looking at the camera.');
+    case 'FACE_NOT_ENROLLED':
+      return bi('Your face is not recorded yet. Use your PIN.');
     case 'OPEN_AT_OTHER_SITE':
       return bi('You are still clocked in at another site.');
     case 'ALREADY_CLOCKED_IN':

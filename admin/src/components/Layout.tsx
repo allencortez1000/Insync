@@ -23,7 +23,7 @@ const groups: { title: string; items: Item[] }[] = [
     title: 'Payroll',
     items: [
       { to: '/payroll', label: 'Payroll runs', icon: 'payroll' }, { to: '/payslips', label: 'Payslips', icon: 'receipt' },
-      { to: '/reports', label: 'Reports', icon: 'chart' },
+      { to: '/13th-month', label: '13th month pay', icon: 'gift' }, { to: '/reports', label: 'Reports', icon: 'chart' },
     ],
   },
   {

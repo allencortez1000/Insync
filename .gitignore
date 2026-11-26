@@ -7,3 +7,10 @@ dist/
 *.log
 e2e/screens/
 e2e/.pgdata/
+
+# Presentation demo data (contains demo site passwords / PIN) - keep out of the public repo
+supabase/demo/
+e2e/demo-seed-test.mjs
+e2e/portal-ui-test.mjs
+e2e/.facetest/
+e2e/face-ui-test.mjs

@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Insync — User Manual</title>
+<style>
+  @page { size: A4; margin: 17mm 15mm 17mm 15mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font: 10.3pt/1.48 "Segoe UI", Arial, Helvetica, sans-serif; color: #1f2937; margin: 0; }
+  h1 { font-size: 21pt; line-height: 1.2; color: #1d4796; break-before: page; border-bottom: 2.5pt solid #2459bd; padding-bottom: 5pt; margin: 0 0 11pt; }
+  h1 .n { color: #8fa9da; margin-right: 7pt; font-weight: 600; }
+  h2 { font-size: 13.2pt; color: #111827; margin: 15pt 0 5pt; break-after: avoid; }
+  h3 { font-size: 10.8pt; color: #1d4796; margin: 11pt 0 3pt; break-after: avoid; }
+  p { margin: 0 0 6pt; }
+  ul { margin: 3pt 0 7pt; padding-left: 15pt; } li { margin-bottom: 2.5pt; }
+  .lead { font-size: 11.3pt; color: #374151; }
+  ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 5pt 0 9pt; }
+  ol.steps > li { counter-increment: s; position: relative; padding-left: 23pt; margin-bottom: 5pt; break-inside: avoid; }
+  ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.6pt; width: 15.5pt; height: 15.5pt; border-radius: 50%; background: #2459bd; color: #fff; font-size: 8.3pt; font-weight: 700; text-align: center; line-height: 15.5pt; }
+  b.ui { font-weight: 650; color: #0f172a; }
+  .btn { display: inline-block; padding: 0 5pt; border: 0.75pt solid #9aa5b5; border-radius: 3pt; font-size: 8.9pt; font-weight: 650; background: #f8fafc; white-space: nowrap; line-height: 1.45; }
+  .path { font-weight: 650; color: #1d4796; white-space: nowrap; }
+  .box { border-left: 3.5pt solid; border-radius: 3pt; padding: 6pt 9pt; margin: 7pt 0 9pt; break-inside: avoid; font-size: 9.8pt; }
+  .box b:first-child { display: block; font-size: 8.4pt; letter-spacing: .5pt; text-transform: uppercase; margin-bottom: 1.5pt; }
+  .tip { background: #eef6ff; border-color: #2f6fdf; } .tip b:first-child { color: #1d4796; }
+  .warn { background: #fff8e6; border-color: #e0a100; } .warn b:first-child { color: #8a5a00; }
+  .stop { background: #fdecec; border-color: #d92d20; } .stop b:first-child { color: #a11a10; }
+  figure { margin: 8pt 0 11pt; break-inside: avoid; text-align: center; counter-increment: fig; }
+  figure img { max-width: 100%; max-height: 205mm; border: 0.75pt solid #cbd2dc; border-radius: 4pt; }
+  figure.w80 img { max-width: 80%; } figure.w62 img { max-width: 62%; } figure.w52 img { max-width: 52%; } figure.w44 img { max-width: 44%; }
+  .crop { overflow: hidden; height: var(--h); border: 0.75pt solid #cbd2dc; border-radius: 4pt; }
+  .crop img { display: block; width: var(--w, 100%); max-width: none; max-height: none; margin-left: var(--x, 0); margin-top: var(--y, 0); border: 0; border-radius: 0; }
+  figcaption { font-size: 8.5pt; color: #6b7280; margin-top: 3.5pt; }
+  figcaption::before { content: "Figure " counter(fig) ". "; font-weight: 650; color: #374151; }
+  .pair { display: flex; gap: 9pt; align-items: flex-start; break-inside: avoid; } .pair > figure { flex: 1; margin-top: 4pt; } .pair.narrow { width: 80%; margin: 0 auto; } .keep { break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.2pt; margin: 6pt 0 10pt; }
+  th { background: #eaf1fb; text-align: left; padding: 4pt 6pt; border: 0.5pt solid #c9d5e8; font-weight: 650; }
+  td { padding: 4pt 6pt; border: 0.5pt solid #dde2ea; vertical-align: top; }
+  tr { break-inside: avoid; } td.r, th.r { text-align: right; white-space: nowrap; } td.c, th.c { text-align: center; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 8.9pt; background: #f1f3f6; padding: 0 2.5pt; border-radius: 2pt; }
+  pre { font-family: Consolas, "Courier New", monospace; font-size: 8.7pt; line-height: 1.4; background: #f3f5f8; border: 0.5pt solid #dde2ea; border-radius: 4pt; padding: 6pt 8pt; margin: 5pt 0 9pt; white-space: pre-wrap; break-inside: avoid; }
+  .tag { display: inline-block; border-radius: 9pt; padding: 0 5pt; font-size: 8.2pt; font-weight: 650; white-space: nowrap; }
+  .g { background: #d9f5e3; color: #116b35; } .a { background: #fdecc8; color: #8a5200; } .rd { background: #fde1df; color: #a11a10; } .bl { background: #dbe8ff; color: #1d4796; } .pu { background: #eadcff; color: #5b21b6; } .gy { background: #eceff3; color: #374151; }
+  .diagram { margin: 8pt 0 11pt; break-inside: avoid; text-align: center; counter-increment: fig; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .diagram .cap { font-size: 8.5pt; color: #6b7280; margin-top: 3pt; } .diagram .cap::before { content: "Figure " counter(fig) ". "; font-weight: 650; color: #374151; }
+  .cols2 { column-count: 2; column-gap: 16pt; } .cols2 > * { break-inside: avoid; }
+  /* cover */
+  .cover { height: 262mm; display: flex; flex-direction: column; break-after: page; }
+  .cover .band { background: linear-gradient(135deg, #1d4796, #2f6fdf); color: #fff; border-radius: 6pt; padding: 34mm 16mm 22mm; }
+  .cover .brand { font-size: 44pt; font-weight: 800; letter-spacing: -1pt; line-height: 1; }
+  .cover .sub { font-size: 16pt; margin-top: 6pt; opacity: .95; }
+  .cover .doc { font-size: 25pt; font-weight: 650; margin-top: 24mm; }
+  .cover .desc { font-size: 11.5pt; margin-top: 5pt; opacity: .92; max-width: 125mm; }
+  .cover .meta { margin-top: auto; font-size: 10pt; color: #4b5563; } .cover .meta table { width: auto; font-size: 10pt; } .cover .meta td { border: 0; padding: 1.5pt 14pt 1.5pt 0; }
+  /* toc */
+  .toc h1 { break-before: auto; }
+  .toc ol { list-style: none; padding: 0; margin: 0; }
+  .toc li { display: flex; align-items: baseline; gap: 4pt; margin: 0; }
+  .toc li.l1 { font-weight: 650; margin-top: 5.5pt; font-size: 10.4pt; } .toc li.l2 { padding-left: 17pt; font-size: 9.3pt; color: #374151; }
+  .toc a { color: inherit; text-decoration: none; } .toc .dots { flex: 1; border-bottom: 0.75pt dotted #9aa5b5; transform: translateY(-2.5pt); } .toc .pg { min-width: 14pt; text-align: right; font-variant-numeric: tabular-nums; }
+  .mk { font-size: 1pt; color: transparent; }
+  /* phones */
+  .phones { display: flex; gap: 7pt; justify-content: center; margin: 8pt 0 4pt; break-inside: avoid; }
+  .phone { width: 33.5mm; height: 67mm; border: 2.2pt solid #111827; border-radius: 11pt; background: #F3F5F8; padding: 5pt 4.5pt 4pt; display: flex; flex-direction: column; font-size: 5.6pt; line-height: 1.25; text-align: left; overflow: hidden; }
+  .phone .t { font-size: 7.4pt; font-weight: 750; color: #0B1220; } .phone .f { color: #475467; font-size: 5.3pt; }
+  .phone .in { border: 0.8pt solid #CBD2DC; background: #fff; border-radius: 3.5pt; padding: 2.5pt 3.5pt; margin-top: 2pt; font-size: 6pt; }
+  .phone .pb { background: #1D4ED8; color: #fff; border-radius: 4.5pt; text-align: center; padding: 3.5pt 2pt; font-weight: 750; font-size: 6.6pt; margin-top: 4pt; } .phone .pb small { display: block; font-weight: 500; font-size: 5pt; opacity: .9; }
+  .phone .sb { border: 0.9pt solid #1D4ED8; color: #1D4ED8; border-radius: 4.5pt; text-align: center; padding: 2.5pt; font-weight: 700; font-size: 6pt; margin-top: 3pt; background: #fff; }
+  .phone .row { background: #fff; border: 0.8pt solid #CBD2DC; border-radius: 4pt; padding: 3pt 4pt; margin-top: 2.5pt; font-weight: 700; font-size: 6.3pt; color: #0B1220; } .phone .row span { display: block; font-weight: 500; color: #475467; font-size: 5.2pt; }
+  .phone .pill { align-self: flex-start; background: #d9f5e3; color: #116b35; border-radius: 8pt; padding: 0.5pt 4pt; font-weight: 700; font-size: 5.2pt; }
+  .phone .dots { text-align: center; font-size: 9.5pt; letter-spacing: 3pt; color: #1D4ED8; margin: 4pt 0 2pt; white-space: nowrap; }
+  .phone .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2pt; margin-top: auto; } .phone .pad div { background: #fff; border: 0.8pt solid #CBD2DC; border-radius: 3.5pt; text-align: center; padding: 2.6pt 0; font-size: 7.4pt; font-weight: 700; }
+  .phone .ok { margin: auto; text-align: center; } .phone .ok .ck { width: 24pt; height: 24pt; border-radius: 50%; background: #12b76a; color: #fff; font-size: 15pt; line-height: 24pt; margin: 0 auto 4pt; font-weight: 800; }
+  .phone .note { background: #FEF0C7; color: #7A2E0E; border-radius: 3.5pt; padding: 2.5pt 3.5pt; margin-top: auto; font-size: 5.1pt; }
+  .phones-cap { display: flex; gap: 7pt; justify-content: center; font-size: 7.8pt; color: #374151; font-weight: 650; text-align: center; } .phones-cap div { width: 33.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<section class="cover">
+  <div class="band">
+    <div class="brand">Insync</div>
+    <div class="sub">Site Attendance &amp; Weekly Payroll</div>
+    <div class="doc">User Manual</div>
+    <div class="desc">Every function of the admin website and the site attendance app, with step-by-step instructions, diagrams, the payroll computation, and a technical reference of the project.</div>
+  </div>
+  <div class="meta">
+    <table>
+      <tr><td>Website</td><td><b>https://rhbc.online</b></td></tr>
+      <tr><td>Attendance app</td><td>Insync Attendance (Android / iPhone, phones and tablets)</td></tr>
+      <tr><td>Manual version</td><td>1.0 — 25 November 2026</td></tr>
+      <tr><td>Applies to</td><td>Database migrations 1–12, construction payroll computation</td></tr>
+      <tr><td>Country / currency</td><td>Philippines · PHP · all times in Philippine time (Asia/Manila)</td></tr>
+    </table>
+    <p style="margin-top:8pt;font-size:8.8pt;color:#6b7280">Screens in this manual were captured from the live system and show sample / test records. Confidential — contains internal procedures.</p>
+  </div>
+</section>
+
+<!-- ============================== CONTENTS ============================== -->
+<section class="toc">
+  <h1 data-notoc style="margin-top:0">Contents</h1>
+  <ol id="toc"></ol>
+</section>
+
+<!-- ============================== 1 ============================== -->
+<h1 id="about"><span class="n">1</span>About Insync</h1>
+<p class="lead">Insync records when employees start and finish work at each site, and turns that attendance into weekly payroll and payslips.</p>
+<p>Each work site signs in once on a shared phone or tablet. Employees then tap their own name, type their own PIN and press <b class="ui">Clock In</b> or <b class="ui">Clock Out</b>. Office staff use a website to manage sites and employees, review attendance, and run payroll every week.</p>
+
+<h2 id="about-parts">The two parts of the system</h2>
+<table>
+  <tr><th style="width:23%">Part</th><th style="width:27%">Who uses it</th><th>What it is for</th></tr>
+  <tr><td><b>Admin website</b><br>https://rhbc.online</td><td>Admin and authorized staff, each with their own email and password</td><td>Sites, employees, PINs, schedules, attendance review and corrections, leave, allowances, cash advances, weekly payroll, payslips, reports, settings, users and the audit log.</td></tr>
+  <tr><td><b>Attendance app</b><br>Insync Attendance</td><td>One shared phone or tablet per site. Employees use it only to clock in and out.</td><td>Signing the device in with the site name and site password, showing that site's employees, checking the PIN and saving Clock In / Clock Out with the time and location.</td></tr>
+</table>
+
+<div class="diagram">
+<svg viewBox="0 0 760 330" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="12">
+  <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#2459bd"/></marker></defs>
+  <rect x="8" y="40" width="166" height="212" rx="10" fill="#f3f6fb" stroke="#9db3d8"/>
+  <text x="91" y="62" text-anchor="middle" font-weight="700" fill="#1d4796">AT EACH SITE</text>
+  <rect x="48" y="76" width="86" height="130" rx="12" fill="#fff" stroke="#111827" stroke-width="2.5"/>
+  <rect x="58" y="92" width="66" height="14" rx="3" fill="#dbe8ff"/><rect x="58" y="111" width="66" height="14" rx="3" fill="#eef1f5"/><rect x="58" y="130" width="66" height="14" rx="3" fill="#eef1f5"/><rect x="58" y="176" width="66" height="18" rx="4" fill="#1D4ED8"/>
+  <text x="91" y="189" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Clock In</text>
+  <text x="91" y="225" text-anchor="middle" font-weight="700">Attendance app</text>
+  <text x="91" y="241" text-anchor="middle" fill="#4b5563" font-size="10.5">shared phone / tablet</text>
+
+  <rect x="300" y="20" width="160" height="290" rx="10" fill="#1d4796"/>
+  <text x="380" y="44" text-anchor="middle" font-weight="700" fill="#fff">INSYNC SERVER</text>
+  <text x="380" y="59" text-anchor="middle" fill="#cfdcf5" font-size="10">secure cloud database</text>
+  <g font-size="11" fill="#0f172a">
+    <rect x="310" y="72" width="140" height="34" rx="5" fill="#fff"/><text x="380" y="87" text-anchor="middle" font-weight="700">Sign-in and security</text><text x="380" y="100" text-anchor="middle" font-size="9.3" fill="#4b5563">passwords, PINs, lockouts</text>
+    <rect x="310" y="113" width="140" height="34" rx="5" fill="#fff"/><text x="380" y="128" text-anchor="middle" font-weight="700">Attendance records</text><text x="380" y="141" text-anchor="middle" font-size="9.3" fill="#4b5563">punches, corrections</text>
+    <rect x="310" y="154" width="140" height="34" rx="5" fill="#fff"/><text x="380" y="169" text-anchor="middle" font-weight="700">People and pay data</text><text x="380" y="182" text-anchor="middle" font-size="9.3" fill="#4b5563">sites, employees, rates</text>
+    <rect x="310" y="195" width="140" height="34" rx="5" fill="#fff"/><text x="380" y="210" text-anchor="middle" font-weight="700">Payroll engine</text><text x="380" y="223" text-anchor="middle" font-size="9.3" fill="#4b5563">runs, payslips, ledgers</text>
+    <rect x="310" y="236" width="140" height="34" rx="5" fill="#fff"/><text x="380" y="251" text-anchor="middle" font-weight="700">Audit log</text><text x="380" y="264" text-anchor="middle" font-size="9.3" fill="#4b5563">who changed what, when</text>
+  </g>
+  <text x="380" y="295" text-anchor="middle" fill="#cfdcf5" font-size="10">server time is the official time</text>
+
+  <rect x="586" y="40" width="166" height="212" rx="10" fill="#f3f6fb" stroke="#9db3d8"/>
+  <text x="669" y="62" text-anchor="middle" font-weight="700" fill="#1d4796">AT THE OFFICE</text>
+  <rect x="602" y="78" width="134" height="92" rx="6" fill="#fff" stroke="#111827" stroke-width="2.5"/>
+  <rect x="610" y="86" width="32" height="76" rx="2" fill="#eef1f5"/><rect x="648" y="86" width="80" height="12" rx="2" fill="#dbe8ff"/><rect x="648" y="103" width="80" height="8" rx="2" fill="#eef1f5"/><rect x="648" y="115" width="80" height="8" rx="2" fill="#eef1f5"/><rect x="648" y="127" width="80" height="8" rx="2" fill="#eef1f5"/>
+  <rect x="654" y="170" width="30" height="12" fill="#111827"/><rect x="634" y="182" width="70" height="6" rx="3" fill="#111827"/>
+  <text x="669" y="213" text-anchor="middle" font-weight="700">Admin website</text>
+  <text x="669" y="229" text-anchor="middle" fill="#4b5563" font-size="10.5">rhbc.online · admin, staff</text>
+
+  <g stroke="#2459bd" stroke-width="2" marker-end="url(#ar)">
+    <line x1="180" y1="128" x2="296" y2="128"/><line x1="294" y1="172" x2="178" y2="172"/>
+    <line x1="580" y1="128" x2="464" y2="128"/><line x1="466" y1="172" x2="582" y2="172"/>
+  </g>
+  <g font-size="9.6" fill="#1d4796" text-anchor="middle">
+    <text x="237" y="108">site name + password,</text><text x="237" y="120">PIN, Clock In / Out</text>
+    <text x="237" y="188">names of this site's</text><text x="237" y="200">employees only</text>
+    <text x="523" y="108">set-up, corrections,</text><text x="523" y="120">payroll actions</text>
+    <text x="523" y="188">attendance, pay,</text><text x="523" y="200">payslips, reports</text>
+  </g>
+  <text x="91" y="276" text-anchor="middle" font-size="10" fill="#a11a10" font-weight="700">cannot see pay, IDs or PINs</text>
+  <text x="669" y="276" text-anchor="middle" font-size="10" fill="#116b35" font-weight="700">staff see only their own sites</text>
+</svg>
+<div class="cap">How the parts connect. The app and the website never talk to each other directly; both talk to the server.</div>
+</div>
+
+<h2 id="about-roles">Who can do what</h2>
+<table>
+  <tr><th style="width:17%">Role</th><th style="width:25%">Signs in with</th><th>Can do</th></tr>
+  <tr><td><b>Admin</b></td><td>Own email + password (website)</td><td>Everything, for all sites: create sites and site passwords, employees, attendance, payroll, payslips, reports, settings, statutory rules, users and access, audit log. Only an admin can void payroll that is already paid.</td></tr>
+  <tr><td><b>Staff</b></td><td>Own email + password (website)</td><td>For the sites assigned to them: create and edit employees, set and reset PINs, correct attendance, rates and schedules, deductions, leave, allowances, cash advances, payroll runs, payslips and reports. Cannot create sites, change settings, manage users or read the audit log.</td></tr>
+  <tr><td><b>Site account</b></td><td>Site name + site password (app)</td><td>Show that site's employee list and record attendance. Nothing else: no pay, no government IDs, no PINs, no admin actions.</td></tr>
+  <tr><td><b>Employee</b></td><td>Own 6-digit PIN (app)</td><td>One Clock In or Clock Out per PIN entry. Employees have no account and cannot open the website.</td></tr>
+</table>
+
+<h2 id="about-flow">The weekly cycle</h2>
+<div class="diagram">
+<svg viewBox="0 0 760 118" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11.5">
+  <g font-weight="700" fill="#fff">
+    <path d="M5,10 h130 l18,40 l-18,40 h-130 z" fill="#1d4796"/><text x="70" y="42" text-anchor="middle">1  Set up</text>
+    <path d="M158,10 h130 l18,40 l-18,40 h-130 l18,-40 z" fill="#2459bd"/><text x="235" y="42" text-anchor="middle">2  Clock in / out</text>
+    <path d="M311,10 h130 l18,40 l-18,40 h-130 l18,-40 z" fill="#2f6fdf"/><text x="388" y="42" text-anchor="middle">3  Review</text>
+    <path d="M464,10 h130 l18,40 l-18,40 h-130 l18,-40 z" fill="#2459bd"/><text x="541" y="42" text-anchor="middle">4  Weekly payroll</text>
+    <path d="M617,10 h120 l18,40 l-18,40 h-120 l18,-40 z" fill="#1d4796"/><text x="690" y="42" text-anchor="middle">5  Pay</text>
+  </g>
+  <g fill="#dbe8ff" font-size="9.6">
+    <text x="70" y="58" text-anchor="middle">sites, employees,</text><text x="70" y="70" text-anchor="middle">rates, PINs</text>
+    <text x="235" y="58" text-anchor="middle">every day, on the</text><text x="235" y="70" text-anchor="middle">site's phone</text>
+    <text x="388" y="58" text-anchor="middle">fix missed punches,</text><text x="388" y="70" text-anchor="middle">check flags</text>
+    <text x="541" y="58" text-anchor="middle">calculate, review,</text><text x="541" y="70" text-anchor="middle">finalize</text>
+    <text x="690" y="58" text-anchor="middle">payslips, record</text><text x="690" y="70" text-anchor="middle">payment</text>
+  </g>
+  <g fill="#4b5563" font-size="9.5"><text x="70" y="108" text-anchor="middle">once, then as needed</text><text x="235" y="108" text-anchor="middle">Attendance app</text><text x="388" y="108" text-anchor="middle">website: Attendance</text><text x="541" y="108" text-anchor="middle">website: Payroll runs</text><text x="690" y="108" text-anchor="middle">website: Payslips</text></g>
+</svg>
+<div class="cap">From set-up to payday. Steps 2–5 repeat every week (Monday to Sunday, paid the following Friday by default).</div>
+</div>
+
+<h2 id="about-words">Words used in this manual</h2>
+<table>
+  <tr><th style="width:21%">Word</th><th>Meaning</th></tr>
+  <tr><td>Site</td><td>A work location. Its <b>name</b> is what the app signs in with. Its <b>code</b> (for example <code>BALANGA</code>) is created automatically and never changes.</td></tr>
+  <tr><td>App password</td><td>The site's password for the attendance app, set by an admin. At least 10 characters.</td></tr>
+  <tr><td>Employee code</td><td>Automatic number such as <code>EMP-0001</code>. Shown beside the name so two people with the same name can be told apart.</td></tr>
+  <tr><td>PIN</td><td>The employee's private 6-digit number. Needed for every Clock In and every Clock Out.</td></tr>
+  <tr><td>Punch</td><td>One Clock In or Clock Out saved from the app. Punches are original evidence and can never be edited or deleted.</td></tr>
+  <tr><td>Session</td><td>One Clock In together with its Clock Out. An <i>open</i> session has no Clock Out yet.</td></tr>
+  <tr><td>Correction</td><td>A change to a session made by staff on the website, always with a reason. The original punches are kept.</td></tr>
+  <tr><td>Payroll run</td><td>The payroll of one week for one or more sites. It moves from Draft to Ready for review, Finalized and Paid.</td></tr>
+  <tr><td>Payslip</td><td>The frozen record of one employee's pay in a finalized run.</td></tr>
+</table>
+
+<!-- ============================== 2 ============================== -->
+<h1 id="quick"><span class="n">2</span>Quick start: first-time set-up</h1>
+<p class="lead">Do these steps once, in this order. Each step points to the chapter with the details.</p>
+<ol class="steps">
+  <li><b>Sign in to the website</b> at https://rhbc.online with the admin email and password. <i>(Chapter 3)</i></li>
+  <li><b>Check the settings.</b> Open <span class="path">Policies &amp; rules</span> and confirm the payroll computation is <b class="ui">Construction (company computation)</b>, the week start and the payday. <i>(Chapter 16)</i></li>
+  <li><b>Create each site</b> with its name and app password in <span class="path">Sites &amp; devices ▸ New site</span>. <i>(Chapter 4)</i></li>
+  <li><b>Create the employees</b> in <span class="path">Employees ▸ New employee</span>: name, site, daily rate and schedule. <i>(Chapter 5)</i></li>
+  <li><b>Give each employee a PIN.</b> Open the employee, tab <b class="ui">Site &amp; PIN</b>, press <span class="btn">Generate PIN</span> and tell the employee privately. <i>(Chapter 5)</i></li>
+  <li><b>Fill in each employee's deductions</b> (SSS, PhilHealth, Pag-IBIG, tax, loans) on the <b class="ui">Deductions</b> tab. Until you do, nothing is deducted. <i>(Chapter 5)</i></li>
+  <li><b>Sign in the site's phone or tablet</b> in the attendance app with the site name and app password. <i>(Chapter 7)</i></li>
+  <li><b>Invite your staff.</b> They press <b class="ui">Request access</b> on the website; you approve them in <span class="path">Users &amp; access</span>. <i>(Chapter 17)</i></li>
+</ol>
+<div class="box tip"><b>Every week after that</b>Employees clock in and out on the app → staff check <span class="path">Attendance</span> for missed punches and flags → on payday week, open <span class="path">Payroll runs</span>, create the run, <span class="btn">Calculate</span>, review, <span class="btn">Finalize</span>, print payslips and <span class="btn">Record payment</span>.</div>
+
+<!-- ============================== 3 ============================== -->
+<h1 id="signin"><span class="n">3</span>Signing in and the Dashboard</h1>
+<h2 id="signin-in">Sign in</h2>
+<ol class="steps">
+  <li>Open <b>https://rhbc.online</b> in Chrome or Edge.</li>
+  <li>Type your <b class="ui">Email</b> and <b class="ui">Password</b>, then press <span class="btn">Sign in</span>.</li>
+  <li>To leave, press <b class="ui">Sign out</b> at the top right.</li>
+</ol>
+<figure class="w62"><img src="img/login.png" alt=""><figcaption>The sign-in page.</figcaption></figure>
+<div class="box warn"><b>If it says "Invalid login credentials"</b>Your browser may have filled in an old saved password. Clear the Password box, type the password yourself and try again.</div>
+
+<h2 id="signin-request">New staff: request access</h2>
+<ol class="steps">
+  <li>On the sign-in page press <b class="ui">New staff member? Request access</b>.</li>
+  <li>Type your full name, work email and a password of at least 10 characters, then press <span class="btn">Create account</span>.</li>
+  <li>If an email arrives, open it and confirm your address.</li>
+  <li>You will see <b class="ui">Waiting for access</b>. Ask an admin to approve you (Chapter 17), then press <span class="btn">Check again</span>.</li>
+</ol>
+<p>Everyone uses their own account. That is how the audit log knows who made each change.</p>
+
+<h2 id="signin-dash">The Dashboard</h2>
+<p>The first page after signing in. It shows what needs attention today. The menu on the left opens every other page.</p>
+<figure><img src="img/dashboard.png" alt=""><figcaption>The Dashboard with the menu on the left.</figcaption></figure>
+<table>
+  <tr><th style="width:30%">Card</th><th>What it tells you</th></tr>
+  <tr><td>Punches today</td><td>How many Clock In / Clock Out actions were saved today.</td></tr>
+  <tr><td>Clocked in now</td><td>People with an open session. If some have been open for more than 16 hours it says they look like missed clock-outs.</td></tr>
+  <tr><td>Flags to review</td><td>Sessions with a problem that nobody has reviewed yet, such as missing location. The link opens Attendance already filtered.</td></tr>
+  <tr><td>OT decisions</td><td>Overtime waiting for a decision. Only used when OT approval is switched on.</td></tr>
+  <tr><td>Leave requests</td><td>Leave entries waiting for approval.</td></tr>
+  <tr><td>PIN / login lockouts (24h)</td><td>PINs or site sign-ins locked after too many wrong tries in the last day.</td></tr>
+  <tr><td>Payroll in progress</td><td>Runs still in Draft or Ready for review, and runs finalized but not yet paid.</td></tr>
+  <tr><td>Active employees / devices</td><td>Number of active employees and of phones or tablets used in the last day.</td></tr>
+</table>
+<p>Below the cards, <b class="ui">Currently clocked in</b> lists everyone at work right now and <b class="ui">Recent security events</b> lists PIN resets, lockouts and revoked devices. A yellow or red bar at the top appears when something blocks payroll, for example unapproved statutory rules or attendance corrected after payroll was finalized.</p>
+
+<!-- ============================== 4 ============================== -->
+<h1 id="sites"><span class="n">4</span>Sites &amp; devices</h1>
+<p class="lead">Menu: <span class="path">Setup ▸ Sites &amp; devices</span>. Creating and editing sites is for admins.</p>
+<h2 id="sites-new">Create a site</h2>
+<ol class="steps">
+  <li>Press <span class="btn">New site</span>.</li>
+  <li>Type the <b class="ui">Site name</b>. This exact name is typed on the attendance app, so keep it short and clear. No two sites can have the same name.</li>
+  <li>Type the <b class="ui">App password</b> (at least 10 characters). Press <span class="btn">Show</span> to check it.</li>
+  <li>Optionally add the <b class="ui">Address</b> and <b class="ui">Region</b>.</li>
+  <li>Press <span class="btn">Save</span>. The site code is created automatically from the name.</li>
+</ol>
+<div class="pair narrow">
+  <figure><img src="img/sites-new.png" alt=""><figcaption>New site. There is no code to type.</figcaption></figure>
+  <figure><img src="img/sites-password.png" alt=""><figcaption>Changing the app password.</figcaption></figure>
+</div>
+<h2 id="sites-list">The site list and site panel</h2>
+<p>Click a site's row to open its panel underneath. The panel has two tabs.</p>
+<figure class="w62"><img src="img/sites.png" alt=""><figcaption>Sites list with the panel of the selected site.</figcaption></figure>
+<h3>Tab "App sign-in"</h3>
+<ul>
+  <li>Shows the site name to type on the app and whether a password is set.</li>
+  <li><span class="btn">Change password</span> — set a new app password. <b>Every phone and tablet of this site is signed out</b> and must sign in again with the new password.</li>
+  <li><span class="btn">Disable sign-in</span> — stops all attendance for the site and signs out its devices. Press <span class="btn">Enable sign-in</span> to turn it back on.</li>
+  <li><b class="ui">Failed sign-ins</b> — 10 wrong passwords lock the site sign-in for 15 minutes.</li>
+</ul>
+<h3>Tab "Device sessions"</h3>
+<p>Lists every phone or tablet that has signed in to this site, when, and when it was last used. A device stays signed in for 180 days.</p>
+<ol class="steps">
+  <li>To sign out a lost or replaced device, press <span class="btn">Revoke</span> on its row.</li>
+  <li>Type the reason and press <span class="btn">Revoke</span>. The device must sign in again with the site name and password.</li>
+</ol>
+<figure class="w80"><img src="img/sites-devices.png" alt=""><figcaption>Device sessions of a site.</figcaption></figure>
+<h2 id="sites-edit">Edit or close a site</h2>
+<ol class="steps">
+  <li>Press <span class="btn">Edit</span> on the site's row.</li>
+  <li>Change the name, address or region, or type a new app password (leave it blank to keep the current one). The <b class="ui">Code</b> is shown but cannot be edited.</li>
+  <li>To close a site, untick <b class="ui">Active</b>. Sites are never deleted, so old attendance and payroll stay traceable.</li>
+  <li>Press <span class="btn">Save</span>.</li>
+</ol>
+<div class="box warn"><b>Renaming a site</b>The new name is what must be typed on the app from then on. Devices that are already signed in stay signed in.</div>
+
+<!-- ============================== 5 ============================== -->
+<h1 id="employees"><span class="n">5</span>Employees</h1>
+<p class="lead">Menu: <span class="path">People ▸ Employees</span>.</p>
+<h2 id="emp-list">The employee list</h2>
+<p>Search by name or code, filter by site (or <b class="ui">Unassigned</b>), and tick <b class="ui">Show inactive</b> to include people who left. The columns warn you when something is missing: no site, no daily rate, no schedule, or PIN <span class="tag a">not set</span>. Click a row to open the employee.</p>
+<figure><img src="img/employees.png" alt=""><figcaption>Employee list.</figcaption></figure>
+
+<h2 id="emp-new">Create an employee</h2>
+<ol class="steps">
+  <li>Press <span class="btn">New employee</span>.</li>
+  <li>Type the <b class="ui">First name</b>, <b class="ui">Middle name</b> (optional) and <b class="ui">Last name</b>. Set the <b class="ui">Hire date</b> and <b class="ui">Classification</b>.</li>
+  <li>Leave the three tick boxes as they are unless you use the DOLE computation (Chapter 19).</li>
+  <li>Choose the <b class="ui">Site</b> and the date the assignment starts.</li>
+  <li>Type the <b class="ui">Daily rate (PHP)</b> and the date it takes effect.</li>
+  <li>Choose a <b class="ui">Schedule</b> and its start date.</li>
+  <li>Press <span class="btn">Create</span>. The employee code (<code>EMP-0001</code>, <code>EMP-0002</code>, …) is given automatically and can never be changed.</li>
+</ol>
+<figure class="w80"><img src="img/employees-new.png" alt=""><figcaption>New employee. Site, rate and schedule can also be added later.</figcaption></figure>
+<div class="box warn"><b>Effective dates matter</b>The daily rate must be effective on or before the days the employee worked. If the rate starts today but you pay last week, payroll shows "No daily rate effective on …".</div>
+
+<p>An employee's page has six tabs: <b class="ui">Profile</b>, <b class="ui">Site &amp; PIN</b>, <b class="ui">Rate &amp; schedule</b>, <b class="ui">Deductions</b>, <b class="ui">Leave</b> and <b class="ui">Attendance</b>.</p>
+
+<h2 id="emp-profile">Tab: Profile</h2>
+<p>Names, hire and separation dates, classification, government numbers (TIN, SSS, PhilHealth, Pag-IBIG) and notes. Press <span class="btn">Save changes</span> after editing.</p>
+<ul>
+  <li><b>Employee left?</b> Set the <b class="ui">Separation date</b>, untick <b class="ui">Active</b> and save. Inactive employees disappear from the app's list and cannot clock in. Employees are never deleted.</li>
+  <li>You cannot deactivate someone who is still clocked in. Close their session first (Chapter 8).</li>
+</ul>
+<figure class="w80"><img src="img/employee-profile.png" alt=""><figcaption>Profile tab.</figcaption></figure>
+
+<h2 id="emp-site">Tab: Site &amp; PIN</h2>
+<figure><img src="img/employee-site-pin.png" alt=""><figcaption>Site assignment on the left, PIN on the right.</figcaption></figure>
+<h3>Transfer an employee to another site</h3>
+<ol class="steps">
+  <li>Press <span class="btn">Transfer</span> (or <span class="btn">Assign</span> if the employee has no site).</li>
+  <li>Choose the <b class="ui">New site</b> and the date and time the transfer takes effect.</li>
+  <li>Type the reason and press <span class="btn">Save</span>.</li>
+</ol>
+<p>An employee belongs to one site at a time. From the effective time they appear on the new site's app and disappear from the old one. Earlier attendance and payroll keep their original site. If the employee is still clocked in at the old site, either close that session first or tick <b class="ui">Allow them to clock out at the original site</b>.</p>
+<p><span class="btn">End</span> removes the employee from the site without assigning a new one.</p>
+<h3>Give or reset a PIN</h3>
+<ol class="steps">
+  <li>Press <span class="btn">Generate PIN</span> (or <span class="btn">Reset with new random PIN</span>).</li>
+  <li>A 6-digit PIN is shown <b>once</b>. Tell it to the employee privately.</li>
+  <li>Press <span class="btn">I have handed it over</span>. The PIN cannot be viewed again by anyone.</li>
+</ol>
+<p>To let the employee choose their own PIN, press <span class="btn">Set PIN manually</span> and let them type 6 digits. Easy PINs such as 111111 or 123456 are refused.</p>
+<div class="pair">
+  <figure><img src="img/employee-transfer.png" alt=""><figcaption>Transfer.</figcaption></figure>
+  <figure><img src="img/employee-pin-manual.png" alt=""><figcaption>Set PIN manually.</figcaption></figure>
+</div>
+<div class="box tip"><b>PIN locked</b>Five wrong PINs lock it for 15 minutes. The status shows <span class="tag rd">locked</span>; press <span class="btn">Unlock</span> to release it at once, or reset the PIN if the employee forgot it. Resetting stops the old PIN immediately.</div>
+
+<h2 id="emp-rate">Tab: Rate &amp; schedule</h2>
+<figure><img src="img/employee-rate.png" alt=""><figcaption>Rate history and schedule history.</figcaption></figure>
+<h3>Change the daily rate</h3>
+<ol class="steps">
+  <li>Press <span class="btn">Add rate</span>.</li>
+  <li>Type the new <b class="ui">Daily rate</b>, or type a monthly salary in <b class="ui">Or enter a monthly salary</b> and the daily rate is filled in as salary ÷ 26, rounded to the peso.</li>
+  <li>Set <b class="ui">Effective from</b>, type the reason and press <span class="btn">Save</span>.</li>
+</ol>
+<p>Old rates are kept. Each work date is paid at the rate in effect on that date, so a raise in the middle of a week is handled correctly. A rate cannot be added or changed for dates that are already in a finalized payroll; void and reissue that payroll first (Chapter 13).</p>
+<figure class="w52"><img src="img/employee-rate-add.png" alt=""><figcaption>Monthly salary 15,600 ÷ 26 = daily rate 600.</figcaption></figure>
+<h3>Assign a schedule</h3>
+<p>Press <span class="btn">Assign schedule</span>, choose the schedule and its start date, and save. Schedules are created in Chapter 6.</p>
+
+<h2 id="emp-ded">Tab: Deductions</h2>
+<p>The amounts taken from this employee <b>every weekly payroll</b>: SSS, PhilHealth, Pag-IBIG, withholding tax, SSS loan and one additional deduction that you can name.</p>
+<ol class="steps">
+  <li>Tick <b class="ui">Enabled</b> on each deduction that applies.</li>
+  <li>Type the <b class="ui">Amount per payroll</b> in pesos.</li>
+  <li>For the last row, type a label such as "Uniform" or "Tools".</li>
+  <li>Press <span class="btn">Save deductions</span>. The total per payroll is shown at the bottom.</li>
+</ol>
+<figure class="w80"><img src="img/employee-deductions.png" alt=""><figcaption>Deductions tab. Only enabled rows are deducted.</figcaption></figure>
+<div class="box warn"><b>Net pay never goes below zero</b>Deductions are taken in the order shown, then cash advances. If the pay of a week is too small, the deduction that does not fit is reduced and the payroll run shows a warning so you can see what was not collected.</div>
+
+<h2 id="emp-leave">Tabs: Leave and Attendance</h2>
+<p><b class="ui">Leave</b> shows the leave balances and every entry in the leave ledger. Press <span class="btn">Grant / adjust</span> to add the yearly entitlement, a carry-over, or a correction (a note is required for corrections). Recording a leave day is done on the Leave page (Chapter 10).</p>
+<p><b class="ui">Attendance</b> lists the employee's latest 60 sessions, with a link that opens them in Attendance review.</p>
+<div class="pair">
+  <figure><img src="img/employee-leave.png" alt=""><figcaption>Leave tab.</figcaption></figure>
+  <figure><img src="img/employee-leave-grant.png" alt=""><figcaption>Grant or adjust leave.</figcaption></figure>
+</div>
+
+<!-- ============================== 6 ============================== -->
+<h1 id="schedules"><span class="n">6</span>Schedules</h1>
+<p class="lead">Menu: <span class="path">People ▸ Schedules</span>. A schedule says which days are working days and what the normal hours are.</p>
+<ol class="steps">
+  <li>Press <span class="btn">New schedule</span>, or <span class="btn">Edit</span> on an existing one.</li>
+  <li>Type a <b class="ui">Name</b>, the <b class="ui">Start</b> and <b class="ui">End</b> time.</li>
+  <li>Tick the <b class="ui">Working days</b>. Days left unticked are rest days.</li>
+  <li>Set the <b class="ui">Unpaid break</b>, <b class="ui">Deduct after</b> and <b class="ui">Grace</b> minutes, then press <span class="btn">Save</span>.</li>
+</ol>
+<div class="pair">
+  <figure><img src="img/schedules.png" alt=""><figcaption>Schedules list.</figcaption></figure>
+  <figure style="flex:.62"><img src="img/schedules-edit.png" alt=""><figcaption>Edit schedule.</figcaption></figure>
+</div>
+<div class="box tip"><b>With the construction computation</b>Lunch (1 hour when the day is 8 hours or longer) and the rest day (Sunday) are fixed by the computation itself, so the schedule's break and working-day settings do not change pay. The schedule is still used by the DOLE computation and to describe the employee's normal hours.</div>
+
+<!-- ============================== 7 ============================== -->
+<h1 id="app"><span class="n">7</span>The attendance app</h1>
+<p class="lead">The app on the site's shared phone or tablet. Staff sign the device in once; employees then clock in and out by themselves.</p>
+<h2 id="app-open">Open the app</h2>
+<p>The app is currently opened through <b>Expo Go</b> (a free app from the Play Store or App Store) while it is being tested:</p>
+<ol class="steps">
+  <li>On the office computer, open a terminal in the <code>Insync</code> folder and run <code>npm.cmd run app</code>. A QR code appears.</li>
+  <li>On the phone, connected to the same Wi-Fi, open Expo Go and scan the QR code (on iPhone, use the Camera).</li>
+  <li>The <b class="ui">Site sign in</b> screen appears.</li>
+</ol>
+<div class="box warn"><b>Before real use</b>Opening through Expo Go needs the office computer to stay on. For daily use at the sites the app should be built as an installable Android file (APK) and installed on each device. See Chapter 22.</div>
+
+<h2 id="app-screens">The five screens</h2>
+<div class="phones">
+  <div class="phone"><div class="t">Site sign in</div><div class="f">Pag-sign in ng site</div><div class="f" style="margin-top:3pt">Site name · Pangalan ng site</div><div class="in">Balanga</div><div class="f" style="margin-top:3pt">Password</div><div class="in">••••••••••••</div><div class="pb">Sign in<small>Mag-sign in</small></div><div class="note">For staff: enter the site name and the site password.</div></div>
+  <div class="phone"><div style="display:flex;justify-content:space-between;align-items:center"><div class="t">Balanga ⚙</div><div class="pill">Online</div></div><div class="f">Tap your name · Pindutin ang iyong pangalan</div><div class="in" style="color:#98a2b3">Search name or code</div><div class="row">Dela Cruz, Juan<span>EMP-0003</span></div><div class="row">Gal, Joshua<span>EMP-0001</span></div><div class="row">Santos, Maria<span>EMP-0004</span></div><div class="note">Your location is recorded only when you Clock In or Clock Out.</div></div>
+  <div class="phone"><div class="t">Joshua Gal</div><div class="f">EMP-0001 · Enter your PIN · Ilagay ang iyong PIN</div><div class="dots">●●●○○○</div><div class="pad"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div style="font-size:5pt;padding-top:4pt">Clear</div><div>0</div><div>⌫</div></div><div class="sb" style="margin-top:4pt">Not you? Go back</div></div>
+  <div class="phone"><div class="t">Joshua Gal</div><div class="f">EMP-0001</div><div class="f" style="margin-top:5pt">You are not clocked in.<br>Hindi ka pa naka-time in.</div><div class="pb" style="margin-top:9pt;padding:7pt 2pt;font-size:8.2pt">Clock In<small>Mag-time in</small></div><div class="sb">Cancel · Kanselahin</div><div class="f" style="margin-top:auto;text-align:center">Closes in 0:27</div></div>
+  <div class="phone"><div class="ok"><div class="ck">✓</div><div class="t">Saved · Naitala na</div><div style="font-size:6.6pt;font-weight:700;margin-top:3pt">Joshua Gal</div><div class="f">Clocked in · Naka-time in na</div><div style="font-size:8.6pt;font-weight:800;margin-top:4pt;color:#0B1220">7:02 AM</div><div class="f">Location recorded</div></div><div class="pb">Done<small>Tapos na</small></div></div>
+</div>
+<div class="phones-cap"><div>1. Sign in (staff)</div><div>2. Employee list</div><div>3. PIN</div><div>4. Confirm</div><div>5. Saved</div></div>
+<p style="font-size:8.5pt;color:#6b7280;text-align:center;margin-top:3pt">Illustration of the app screens. Labels are shown in English and Filipino in the real app.</p>
+
+<h2 id="app-signin">Sign in the device (staff, once per device)</h2>
+<ol class="steps">
+  <li>Type the <b class="ui">Site name</b> exactly as it is on the website. Capital letters do not matter.</li>
+  <li>Type the site's <b class="ui">Password</b> and press <span class="btn">Sign in</span>.</li>
+  <li>Allow location when the phone asks. Choose "While using the app".</li>
+  <li>The site's employee list appears. The device now stays signed in.</li>
+</ol>
+
+<h2 id="app-clock">Clock In and Clock Out (employee)</h2>
+<ol class="steps">
+  <li>Find your name in the list, or type part of your name or code in the search box. Check the code if two people share a name.</li>
+  <li>Tap your name and type your 6-digit PIN. The app checks it after the sixth digit.</li>
+  <li>The app shows <b>one</b> button: <span class="btn">Clock In</span> if you are not at work yet, or <span class="btn">Clock Out</span> if you already clocked in. Tap it.</li>
+  <li>The app gets the phone's location (up to 8 seconds) and saves the punch on the server.</li>
+  <li>The green <b class="ui">Saved</b> screen shows your name and the saved time. After 4 seconds the app returns to the list for the next person.</li>
+</ol>
+<div class="diagram">
+<svg viewBox="0 0 760 208" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+  <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#475467"/></marker></defs>
+  <g stroke="#9db3d8" fill="#f3f6fb"><rect x="6" y="20" width="104" height="52" rx="8"/><rect x="134" y="20" width="104" height="52" rx="8"/><rect x="390" y="20" width="110" height="52" rx="8"/><rect x="524" y="20" width="104" height="52" rx="8"/></g>
+  <path d="M262,46 l52,-34 l52,34 l-52,34 z" fill="#fff8e6" stroke="#e0a100"/>
+  <rect x="652" y="20" width="102" height="52" rx="8" fill="#d9f5e3" stroke="#12b76a"/>
+  <g text-anchor="middle" fill="#0f172a">
+    <text x="58" y="42" font-weight="700">Tap your</text><text x="58" y="57" font-weight="700">name</text>
+    <text x="186" y="42" font-weight="700">Type your</text><text x="186" y="57" font-weight="700">6-digit PIN</text>
+    <text x="314" y="43" font-weight="700" font-size="10">PIN</text><text x="314" y="56" font-weight="700" font-size="10">correct?</text>
+    <text x="445" y="42" font-weight="700">Tap Clock In</text><text x="445" y="57" font-weight="700">or Clock Out</text>
+    <text x="576" y="42" font-weight="700">Location</text><text x="576" y="57" fill="#475467" font-size="10">up to 8 seconds</text>
+    <text x="703" y="42" font-weight="700" fill="#116b35">Saved</text><text x="703" y="57" fill="#116b35" font-size="10">server time</text>
+  </g>
+  <g stroke="#475467" stroke-width="1.6" marker-end="url(#a2)"><line x1="110" y1="46" x2="132" y2="46"/><line x1="238" y1="46" x2="260" y2="46"/><line x1="366" y1="46" x2="388" y2="46"/><line x1="500" y1="46" x2="522" y2="46"/><line x1="628" y1="46" x2="650" y2="46"/><line x1="314" y1="80" x2="314" y2="118"/><line x1="576" y1="72" x2="576" y2="118"/></g>
+  <text x="377" y="39" font-size="9.5" fill="#116b35" text-anchor="middle">yes</text><text x="324" y="102" font-size="9.5" fill="#a11a10">no</text>
+  <rect x="214" y="120" width="200" height="76" rx="8" fill="#fdecec" stroke="#f0a7a2"/>
+  <text x="314" y="139" text-anchor="middle" font-weight="700" fill="#a11a10">Wrong PIN</text>
+  <text x="314" y="155" text-anchor="middle" font-size="10">Nothing is saved. The app shows</text><text x="314" y="169" text-anchor="middle" font-size="10">how many tries are left. After 5 wrong</text><text x="314" y="183" text-anchor="middle" font-size="10">tries the PIN locks for 15 minutes.</text>
+  <rect x="470" y="120" width="212" height="76" rx="8" fill="#fff8e6" stroke="#e0a100"/>
+  <text x="576" y="139" text-anchor="middle" font-weight="700" fill="#8a5a00">No location?</text>
+  <text x="576" y="155" text-anchor="middle" font-size="10">The punch is still saved and marked</text><text x="576" y="169" text-anchor="middle" font-size="10">"location exception" for staff to review.</text><text x="576" y="183" text-anchor="middle" font-size="10">No fake coordinates are ever stored.</text>
+</svg>
+<div class="cap">What happens at each Clock In or Clock Out.</div>
+</div>
+<h3>Rules that protect attendance</h3>
+<ul>
+  <li>The PIN is asked for <b>every</b> Clock In and every Clock Out. A PIN check is good for one action and expires after 90 seconds.</li>
+  <li>The app never switches between in and out by itself; the employee always presses the button.</li>
+  <li>One open session per employee, even across devices and sites. A second Clock In is refused.</li>
+  <li>The saved time is the server's time, not the phone's clock.</li>
+  <li>Location is taken only at the moment of the punch. The app never tracks the phone in the background.</li>
+  <li>The confirm screen closes by itself after 30 seconds without a tap, so a walk-away cannot be used by the next person.</li>
+</ul>
+
+<h2 id="app-offline">When there is no signal</h2>
+<p>The app needs internet to save attendance. The top of the list shows <span class="tag g">Online</span> or <span class="tag rd">Offline</span>.</p>
+<ul>
+  <li>If the connection drops while saving, the app shows <b class="ui">Not saved yet · Hindi pa naitala</b>. It never shows "Saved" unless the server confirmed it.</li>
+  <li>Check the connection and tap <span class="btn">Retry</span>. Do not start over. The app first asks the server whether the punch was already saved, so a retry can never create a double punch.</li>
+  <li>If it still cannot be saved, tell staff. They can add the session on the website with a reason (Chapter 8).</li>
+</ul>
+
+<h2 id="app-messages">Messages the app can show</h2>
+<table>
+  <tr><th style="width:36%">Message</th><th>What it means and what to do</th></tr>
+  <tr><td>Wrong site name or password.</td><td>Check the site name on the website (Sites &amp; devices) and the app password. An admin can set a new password.</td></tr>
+  <tr><td>Too many failed sign-ins. Try again later.</td><td>10 wrong site passwords. Wait 15 minutes.</td></tr>
+  <tr><td>This site account is disabled.</td><td>An admin disabled the site's sign-in or closed the site.</td></tr>
+  <tr><td>Site session ended. Please sign in again.</td><td>The device was revoked, the password was changed, or 180 days passed. Sign in again.</td></tr>
+  <tr><td>Wrong PIN. (… tries left)</td><td>Type it again carefully.</td></tr>
+  <tr><td>PIN locked for a while.</td><td>5 wrong PINs. Wait 15 minutes, or ask staff to unlock or reset it.</td></tr>
+  <tr><td>Too many wrong PINs on this device.</td><td>15 wrong PINs on one device in 15 minutes. Wait 15 minutes.</td></tr>
+  <tr><td>You have no PIN yet. Please see staff.</td><td>Staff must generate a PIN for this employee.</td></tr>
+  <tr><td>You are not on this site's list.</td><td>The employee is assigned to another site, or is inactive.</td></tr>
+  <tr><td>You are still clocked in at another site.</td><td>Clock out at that site, or ask staff to close the session.</td></tr>
+  <tr><td>You are already clocked in. / You are not clocked in yet.</td><td>The action does not match the current state. Go back and enter the PIN again.</td></tr>
+  <tr><td>Location is required. Turn on location and try again.</td><td>Only when the setting "Block attendance until location works" is on. Turn on the phone's location.</td></tr>
+  <tr><td>Time ran out. Enter your PIN again.</td><td>The confirm screen was left open too long.</td></tr>
+</table>
+
+<h2 id="app-signout">Sign out a device</h2>
+<ol class="steps">
+  <li>Press and hold the site name (or the ⚙ icon) at the top of the list for about 1.5 seconds.</li>
+  <li>Tap <span class="btn">Sign out this device</span> and confirm. The site password is needed to sign in again.</li>
+</ol>
+<p>Staff can also sign out any device from the website (Chapter 4, Device sessions).</p>
+
+<!-- ============================== 8 ============================== -->
+<h1 id="attendance"><span class="n">8</span>Attendance review and corrections</h1>
+<p class="lead">Menu: <span class="path">Attendance ▸ Attendance</span>. Check it every day or at least before each payroll.</p>
+<h2 id="att-list">Reading the list</h2>
+<figure><img src="img/attendance.png" alt=""><figcaption>Attendance by work date. Device punches and staff corrections are both listed.</figcaption></figure>
+<ul>
+  <li><b class="ui">View</b>: <i>By work date</i> (with From and To) or <i>Open sessions (any date)</i> to find everyone who has not clocked out.</li>
+  <li><b class="ui">Site</b> and <b class="ui">Employee</b> filters, <b class="ui">Flagged, unreviewed</b>, and <b class="ui">Show voided</b>.</li>
+</ul>
+<table>
+  <tr><th style="width:27%">Badge</th><th>Meaning</th></tr>
+  <tr><td><span class="tag g">captured</span> beside a time</td><td>Location was recorded. Click it to open the map.</td></tr>
+  <tr><td><span class="tag rd">permission denied</span> <span class="tag a">timeout</span> <span class="tag a">unavailable</span> <span class="tag a">stale</span></td><td>Location was not recorded: permission off, GPS too slow, GPS off, or the position was older than 2 minutes.</td></tr>
+  <tr><td><span class="tag a">short</span> / <span class="tag bl">extra</span></td><td>Less than or more than 8 hours between in and out (before lunch is deducted).</td></tr>
+  <tr><td><span class="tag a">open</span> <span class="tag g">closed</span> <span class="tag rd">voided</span></td><td>Session has no Clock Out yet / is complete / was cancelled by staff.</td></tr>
+  <tr><td><span class="tag pu">correction</span></td><td>The session was entered by staff, not by the app.</td></tr>
+  <tr><td><span class="tag a">location exception</span></td><td>A punch has no location. Review it; it does not stop payroll.</td></tr>
+  <tr><td><span class="tag a">long session</span></td><td>Longer than 16 hours, usually a forgotten Clock Out. <b>It blocks payroll</b> until corrected or reviewed.</td></tr>
+  <tr><td><span class="tag rd">missing</span> in the Clock out column</td><td>Open for more than 16 hours. <b>It blocks payroll</b> until closed.</td></tr>
+</table>
+
+<h2 id="att-detail">Open a session</h2>
+<p>Click a row. The window shows the site, both times, the elapsed time, each punch's location with accuracy and a map link, the device used, the flags and every correction made so far.</p>
+<figure class="w80"><img src="img/attendance-detail.png" alt=""><figcaption>Session detail.</figcaption></figure>
+
+<h2 id="att-close">Close a missed Clock Out or correct the times</h2>
+<ol class="steps">
+  <li>Open the session and press <span class="btn">Close / correct</span> (open session) or <span class="btn">Correct times</span>.</li>
+  <li>Set the <b class="ui">Clock in</b> and <b class="ui">Clock out</b> in Philippine time. Leave Clock out empty only if the person is really still working.</li>
+  <li>Type the <b class="ui">Reason</b>, for example "Forgot to clock out; confirmed by supervisor".</li>
+  <li>Press <span class="btn">Save correction</span>.</li>
+</ol>
+<figure class="w80"><img src="img/attendance-correct.png" alt=""><figcaption>Correcting a session. The original punch stays on record with its own time and location.</figcaption></figure>
+
+<h2 id="att-add">Add a missing session</h2>
+<p>Use this when the app could not be used at all, for example no signal for the whole day.</p>
+<ol class="steps">
+  <li>Press <span class="btn">Add missing session</span>.</li>
+  <li>Choose the <b class="ui">Employee</b>. The site is filled in with their current site; change it if they worked elsewhere.</li>
+  <li>Set <b class="ui">Clock in</b> and <b class="ui">Clock out</b>, type the reason and press <span class="btn">Save</span>.</li>
+</ol>
+<figure class="w62"><img src="img/attendance-add.png" alt=""><figcaption>Add missing attendance session.</figcaption></figure>
+<p>Sessions cannot overlap. If it says the session overlaps another one, check the employee's other sessions for that day.</p>
+
+<h2 id="att-other">Void and Mark reviewed</h2>
+<ul>
+  <li><span class="btn">Void</span> cancels a session that should not count, such as a Clock In by mistake. A reason is required. The punches stay on record; the session no longer counts for pay.</li>
+  <li><span class="btn">Mark reviewed</span> appears on flagged sessions. Type a short note to record that you checked it. Reviewed flags stop appearing on the Dashboard, and a reviewed long session no longer blocks payroll.</li>
+</ul>
+<div class="box stop"><b>Corrections after payroll is finalized</b>You can still correct attendance, but the finalized payslip does not change. The Dashboard and the payroll run show a red notice. To pay the difference, void the run and reissue it (Chapter 13).</div>
+
+<!-- ============================== 9 ============================== -->
+<h1 id="overtime"><span class="n">9</span>Overtime review</h1>
+<p class="lead">Menu: <span class="path">Attendance ▸ Overtime review</span>.</p>
+<p>With the construction computation overtime is <b>automatic</b>: every hour after 9 hours between Clock In and Clock Out is paid as OT, and this page is not needed.</p>
+<p>If you want every overtime to be approved first, an admin ticks <b class="ui">Extra time requires an OT decision before payroll can be finalized</b> in Policies &amp; rules. Then:</p>
+<ol class="steps">
+  <li>Choose the dates and press <span class="btn">Find extra time in range</span>.</li>
+  <li>Press <span class="btn">Decide</span> on each row.</li>
+  <li>Choose <b class="ui">Accept as OT</b> (all of it or fewer minutes), <b class="ui">Not OT</b>, or <b class="ui">Disputed</b>. A reason is required unless you accept everything.</li>
+  <li>Press <span class="btn">Save decision</span>.</li>
+</ol>
+<figure><img src="img/overtime.png" alt=""><figcaption>Overtime review.</figcaption></figure>
+<p>Pending or disputed overtime stops the payroll run from being finalized. The recorded hours are never deleted; only the paid part changes.</p>
+
+<!-- ============================== 10 ============================== -->
+<h1 id="leave"><span class="n">10</span>Leave</h1>
+<p class="lead">Menu: <span class="path">People ▸ Leave</span>. Staff record leave for employees; employees do not file it themselves.</p>
+<p>Three leave types are set up: <b>Service Incentive Leave</b> (paid, uses the balance), <b>Sick Leave</b> (paid, uses the balance) and <b>Leave Without Pay</b>.</p>
+<h2 id="leave-flow">Record and approve leave</h2>
+<ol class="steps">
+  <li>Give the employee a balance first: employee page ▸ <b class="ui">Leave</b> tab ▸ <span class="btn">Grant / adjust</span> (for example 5 days of Service Incentive Leave).</li>
+  <li>On the Leave page press <span class="btn">Record leave</span>.</li>
+  <li>Choose the <b class="ui">Employee</b> and <b class="ui">Leave type</b>, the <b class="ui">From</b> and <b class="ui">To</b> dates and the <b class="ui">Hours / day</b> (8 for a full day, 4 for a half day). Add a reason and press <span class="btn">Save</span>. One entry per day is created.</li>
+  <li>Each entry starts as <span class="tag a">pending</span>. Press <span class="btn">Approve</span> or <span class="btn">Reject</span> (a reason is required to reject).</li>
+</ol>
+<div class="pair">
+  <figure><img src="img/leave.png" alt=""><figcaption>Leave page.</figcaption></figure>
+  <figure style="flex:.7"><img src="img/leave-record.png" alt=""><figcaption>Record leave.</figcaption></figure>
+</div>
+<ul>
+  <li>Approving paid leave deducts the balance at once. If the balance is too low, approval is refused.</li>
+  <li>Approved paid leave is paid in that week's payroll without any Clock In, as ordinary hours at the daily rate.</li>
+  <li><span class="btn">Cancel</span> withdraws a pending or approved entry and returns the balance.</li>
+  <li>Worked hours plus paid leave on the same day cannot be more than 8 hours; payroll blocks it.</li>
+</ul>
+
+<!-- ============================== 11 ============================== -->
+<h1 id="allowances"><span class="n">11</span>Allowances</h1>
+<p class="lead">Menu: <span class="path">People ▸ Allowances</span>. Extra amounts added to an employee's weekly pay.</p>
+<ol class="steps">
+  <li>Press <span class="btn">New allowance</span> and choose the <b class="ui">Employee</b>.</li>
+  <li>Type a <b class="ui">Name</b> (for example "Meal allowance") and the <b class="ui">Amount</b>.</li>
+  <li>Choose the <b class="ui">Frequency</b>: <i>Per day actually worked</i>, or <i>Fixed per week</i> (optionally only if the employee attended that week).</li>
+  <li>Set <b class="ui">Effective from</b> and, if it should stop, <b class="ui">Effective to</b>. Press <span class="btn">Save</span>.</li>
+</ol>
+<figure class="w52"><img src="img/allowances-new.png" alt=""><figcaption>New allowance.</figcaption></figure>
+<p>To stop an allowance, press <span class="btn">Edit</span> and untick <b class="ui">Active</b> or set the end date. The <b class="ui">Taxable</b> box only matters in the DOLE computation, where tax is calculated automatically.</p>
+
+<!-- ============================== 12 ============================== -->
+<h1 id="advances"><span class="n">12</span>Cash advances</h1>
+<p class="lead">Menu: <span class="path">People ▸ Cash advances</span>. Money given in advance and repaid from weekly pay.</p>
+<ol class="steps">
+  <li>Press <span class="btn">Record advance</span> and choose the <b class="ui">Employee</b>.</li>
+  <li>Type the <b class="ui">Principal</b> (amount given) and the <b class="ui">Weekly installment</b>. The form shows about how many payrolls it will take.</li>
+  <li>Set <b class="ui">Released on</b> and <b class="ui">First deduction</b> (the first payday on or after this date).</li>
+  <li>Type the reason or approval note and press <span class="btn">Save</span>. You are recorded as the person who authorized it.</li>
+</ol>
+<figure class="w52"><img src="img/advances-new.png" alt=""><figcaption>Record a cash advance.</figcaption></figure>
+<h3>How repayment works</h3>
+<ul>
+  <li>Each weekly payroll deducts one installment, never more than the remaining balance.</li>
+  <li>The repayment is written to the advance's ledger <b>only when the payroll is finalized</b>. Recalculating a draft any number of times never deducts twice.</li>
+  <li>If net pay is too small, the installment is reduced or skipped and stays owed. The run shows a warning.</li>
+  <li>When the balance reaches zero the advance becomes <span class="tag gy">completed</span>.</li>
+</ul>
+<p>Click an advance to see its ledger. There you can change the installment amount or press <span class="btn">Manual adjustment</span> to record a cash repayment (negative amount) or an increase (positive amount). A reason is required.</p>
+
+<!-- ============================== 13 ============================== -->
+<h1 id="payroll"><span class="n">13</span>Weekly payroll</h1>
+<p class="lead">Menu: <span class="path">Payroll ▸ Payroll runs</span>. One run pays one week (Monday to Sunday by default) for the sites you choose.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 214" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11.5">
+  <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#475467"/></marker><marker id="a4" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#d92d20"/></marker></defs>
+  <g font-weight="700" text-anchor="middle">
+    <rect x="8" y="24" width="122" height="58" rx="9" fill="#eceff3" stroke="#9aa5b5"/><text x="69" y="48">Draft</text><text x="69" y="65" font-weight="400" font-size="9.6" fill="#4b5563">calculate, fix problems</text>
+    <rect x="218" y="24" width="122" height="58" rx="9" fill="#dbe8ff" stroke="#2f6fdf"/><text x="279" y="48" fill="#1d4796">Ready for review</text><text x="279" y="65" font-weight="400" font-size="9.6" fill="#4b5563">figures are checked</text>
+    <rect x="428" y="24" width="122" height="58" rx="9" fill="#eadcff" stroke="#7c3aed"/><text x="489" y="48" fill="#5b21b6">Finalized</text><text x="489" y="65" font-weight="400" font-size="9.6" fill="#4b5563">payslips issued, locked</text>
+    <rect x="630" y="24" width="122" height="58" rx="9" fill="#d9f5e3" stroke="#12b76a"/><text x="691" y="48" fill="#116b35">Paid</text><text x="691" y="65" font-weight="400" font-size="9.6" fill="#4b5563">payment recorded</text>
+    <rect x="498" y="150" width="140" height="52" rx="9" fill="#fde1df" stroke="#d92d20"/><text x="568" y="172" fill="#a11a10">Void</text><text x="568" y="189" font-weight="400" font-size="9.6" fill="#4b5563">payslips kept, marked void</text>
+  </g>
+  <g stroke="#475467" stroke-width="1.6" marker-end="url(#a3)"><line x1="132" y1="42" x2="215" y2="42"/><line x1="216" y1="64" x2="133" y2="64"/><line x1="342" y1="53" x2="425" y2="53"/><line x1="552" y1="53" x2="627" y2="53"/></g>
+  <g font-size="9.6" fill="#1f2937" text-anchor="middle"><text x="174" y="36">Submit for review</text><text x="174" y="79">Return to draft</text><text x="384" y="47">Finalize</text><text x="590" y="47">Record payment</text></g>
+  <g stroke="#d92d20" stroke-width="1.6" marker-end="url(#a4)" fill="none"><path d="M489,82 C489,118 520,130 540,148"/><path d="M691,82 C691,118 630,130 612,148"/><path d="M496,178 C340,196 110,170 70,86"/></g>
+  <g font-size="9.6" fill="#a11a10"><text x="482" y="118" text-anchor="end">Void</text><text x="682" y="118">Void (admin only)</text><text x="262" y="206" text-anchor="middle">Reissue: a new Draft for the same week</text></g>
+</svg>
+<div class="cap">The life of a payroll run. Calculating never approves or pays anything; each step needs a person.</div>
+</div>
+
+<h2 id="pay-create">Step 1 — Create the run</h2>
+<ol class="steps">
+  <li>Finish attendance first: no open sessions and no unreviewed long sessions for the week (Chapter 8).</li>
+  <li>Press <span class="btn">New payroll run</span>.</li>
+  <li>Pick <b class="ui">Any date in the pay week</b>. The form shows the full period and the payday.</li>
+  <li>Tick the <b class="ui">Sites</b> to include (admins can tick <b class="ui">All sites</b>). A week can only have one run per site.</li>
+  <li>Press <span class="btn">Create draft run</span>.</li>
+</ol>
+<figure class="w52"><img src="img/payroll-new.png" alt=""><figcaption>New payroll run.</figcaption></figure>
+
+<h2 id="pay-calc">Step 2 — Calculate and read the results</h2>
+<ol class="steps">
+  <li>On the run page press <span class="btn">Calculate</span>. Press <span class="btn">Recalculate</span> any time attendance, rates, deductions or adjustments change.</li>
+  <li>Check the cards: employees, gross, deductions, net pay, <b class="ui">Blocking</b> and <b class="ui">Warnings</b>.</li>
+  <li>Click an employee's row to open the full breakdown: every earning, every deduction and, under <b class="ui">Informational</b>, how each day was counted.</li>
+</ol>
+<figure><div class="crop" style="--w:214.3mm;--x:-34.3mm;--y:-9mm;--h:98mm"><img src="img/payroll-calculated.png" alt=""></div><figcaption>A calculated draft: status, action buttons, totals and exceptions.</figcaption></figure>
+<figure><div class="crop" style="--w:214.3mm;--x:-34.3mm;--y:-121mm;--h:119mm"><img src="img/payroll-calculated.png" alt=""></div><figcaption>One employee opened. Every peso can be traced to a line, and each day shows how it was counted.</figcaption></figure>
+
+<h2 id="pay-exc">Step 3 — Clear the exceptions</h2>
+<p>The <b class="ui">Exceptions</b> panel lists problems found while calculating. <b>Blocking</b> ones must be fixed before the run can be finalized; each has a link to the page where you fix it. After fixing, press <span class="btn">Recalculate</span>.</p>
+<table>
+  <tr><th style="width:27%">Exception</th><th style="width:11%" class="c">Blocks?</th><th>How to clear it</th></tr>
+  <tr><td>Missing clock-out</td><td class="c"><span class="tag rd">yes</span></td><td>Attendance ▸ open the session ▸ Close / correct.</td></tr>
+  <tr><td>Long session (over 16 h)</td><td class="c"><span class="tag rd">yes</span></td><td>Correct the times, or Mark reviewed if it is real.</td></tr>
+  <tr><td>No daily rate effective on a date</td><td class="c"><span class="tag rd">yes</span></td><td>Employee ▸ Rate &amp; schedule ▸ Add rate with an earlier effective date.</td></tr>
+  <tr><td>Worked hours plus paid leave exceed 8 hours</td><td class="c"><span class="tag rd">yes</span></td><td>Cancel the leave or correct the attendance.</td></tr>
+  <tr><td>An earlier payroll run is not finalized</td><td class="c"><span class="tag rd">yes</span></td><td>Finalize (or delete) the earlier week's run first. Weeks are paid in order.</td></tr>
+  <tr><td>OT pending / disputed / changed</td><td class="c"><span class="tag rd">yes</span></td><td>Only when OT approval is on: decide it in Overtime review.</td></tr>
+  <tr><td>Location exception</td><td class="c"><span class="tag a">no</span></td><td>Review the session in Attendance and Mark reviewed.</td></tr>
+  <tr><td>Deduction reduced (capped)</td><td class="c"><span class="tag a">no</span></td><td>Pay was too small for all deductions. Decide how to collect the rest.</td></tr>
+  <tr><td>Cash advance deferred / partial</td><td class="c"><span class="tag a">no</span></td><td>The balance stays owed and is collected in a later week.</td></tr>
+  <tr><td>Already in another run</td><td class="c"><span class="tag a">no</span></td><td>The employee is paid in another run of the same week and is left out here.</td></tr>
+</table>
+
+<h2 id="pay-adj">Step 4 — Holiday pay and other adjustments</h2>
+<p>Holiday pay is entered by hand in the construction computation. Use <b class="ui">Period adjustments</b> at the bottom of the run page, while the run is still a draft.</p>
+<ol class="steps">
+  <li>Press <span class="btn">Add adjustment</span> and choose the <b class="ui">Employee</b>.</li>
+  <li>Choose the <b class="ui">Kind</b>: <i>Holiday pay</i>, <i>Earning</i> (any other addition) or <i>Deduction</i> (a one-time deduction).</li>
+  <li>Type the <b class="ui">Amount</b>, the <b class="ui">Description</b> that will appear on the payslip, and the <b class="ui">Reason</b>.</li>
+  <li>Press <span class="btn">Save</span>, then <span class="btn">Recalculate</span>.</li>
+</ol>
+
+<h2 id="pay-final">Step 5 — Submit, finalize and pay</h2>
+<ol class="steps">
+  <li>When Blocking is 0 press <span class="btn">Submit for review</span>. The run becomes <span class="tag bl">ready for review</span>. A reviewer can press <span class="btn">Return to draft</span> if something is wrong.</li>
+  <li>Press <span class="btn">Finalize</span> and confirm the net pay shown. The system recalculates one last time. If attendance or rates changed since the review, it stops and returns the run to draft so you can look again.</li>
+  <li>Finalizing issues the payslips, posts cash-advance repayments and contribution records, and locks the run. It does not pay anyone.</li>
+  <li>After the money is actually handed over or transferred, press <span class="btn">Record payment</span>, choose the method (cash, bank transfer, e-wallet or check), add a reference and confirm. When everyone is recorded as paid the run becomes <span class="tag g">paid</span>.</li>
+</ol>
+
+<h2 id="pay-void">Fixing a finalized payroll: Void and Reissue</h2>
+<p>A finalized run can never be edited. To correct it:</p>
+<ol class="steps">
+  <li>Open the run and press <span class="btn">Void</span>. Type the reason (at least 5 characters). Only an admin can void a run that is already paid.</li>
+  <li>The payslips stay on record marked <span class="tag rd">void</span>, and cash-advance repayments of that run are reversed.</li>
+  <li>Make the correction (attendance, rate, deduction…).</li>
+  <li>Press <span class="btn">Reissue</span>. A new draft for the same week and sites is created; calculate, review and finalize it as usual. The run page compares the old and new net pay for each employee.</li>
+</ol>
+<figure><div class="crop" style="--h:74mm"><img src="img/payroll-run-void.png" alt=""></div><figcaption>A voided run with the Reissue button (top of the page).</figcaption></figure>
+<p>A draft that is not needed can simply be removed with <span class="btn">Delete draft</span>.</p>
+
+<!-- ============================== 14 ============================== -->
+<h1 id="payslips"><span class="n">14</span>Payslips</h1>
+<p class="lead">Menu: <span class="path">Payroll ▸ Payslips</span>, or the <span class="btn">Payslips</span> button on a finalized run.</p>
+<ol class="steps">
+  <li>Filter by run or search by employee. Tick <b class="ui">Include void</b> to see cancelled payslips.</li>
+  <li>Press <b class="ui">Open</b> on a row. The payslip opens in a new tab.</li>
+  <li>Press <span class="btn">Print / Save as PDF</span>. In the print window choose your printer, or "Save as PDF" to send it as a file.</li>
+</ol>
+<figure class="w80"><img src="img/payslip.png" alt=""><figcaption>A payslip: employee, period, rates, each earning and deduction, net pay, attendance summary, payment and the day-by-day notes.</figcaption></figure>
+<ul>
+  <li>Payslip numbers look like <code>PS-2026-000001</code> and are never reused.</li>
+  <li>A payslip is a frozen copy taken when the run was finalized. Later changes to the employee, rates or attendance do not alter it.</li>
+  <li>Government numbers are shown with only the last 4 characters.</li>
+  <li>Give payslips to employees privately. They are never shown on the site's attendance app.</li>
+</ul>
+
+<!-- ============================== 15 ============================== -->
+<h1 id="reports"><span class="n">15</span>Reports</h1>
+<p class="lead">Menu: <span class="path">Payroll ▸ Reports</span>. Each report downloads a CSV file that opens in Excel or Google Sheets. Staff only get data for their own sites.</p>
+<table>
+  <tr><th style="width:27%">Report</th><th style="width:26%">Choose</th><th>Contains</th></tr>
+  <tr><td>Payroll register</td><td>A payroll run</td><td>One row per employee: site, days, regular and OT time, gross, each deduction (SSS, PhilHealth, Pag-IBIG, tax, cash advance, others), net pay and payment.</td></tr>
+  <tr><td>Government contributions by month</td><td>A month</td><td>SSS, PhilHealth and Pag-IBIG collected from each employee in finalized or paid runs, with totals per agency on screen.</td></tr>
+  <tr><td>Attendance sessions</td><td>Date range, optional site</td><td>Every session: work date, employee, site, in, out, minutes, status, source, flags, location status and coordinates.</td></tr>
+  <tr><td>Recorded payments</td><td>Date range</td><td>Each payment: date, run, employee, amount, method and reference.</td></tr>
+</table>
+<figure class="w80"><img src="img/reports.png" alt=""><figcaption>Reports page.</figcaption></figure>
+
+<!-- ============================== 16 ============================== -->
+<h1 id="policies"><span class="n">16</span>Policies &amp; rules</h1>
+<p class="lead">Menu: <span class="path">Setup ▸ Policies &amp; rules</span>. Everyone can read these pages; only admins can change them.</p>
+<h2 id="pol-settings">Tab: Payroll &amp; attendance settings</h2>
+<figure><img src="img/policies-settings.png" alt=""><figcaption>Settings. Press Save settings after any change.</figcaption></figure>
+<table>
+  <tr><th style="width:34%">Setting</th><th style="width:20%">Default</th><th>What it does</th></tr>
+  <tr><td>Payroll computation</td><td>Construction</td><td>Which formulas payroll uses: the company's construction computation or the DOLE statutory engine (Chapter 19).</td></tr>
+  <tr><td>Week starts on</td><td>Monday</td><td>First day of each pay week.</td></tr>
+  <tr><td>Payday (days after period end)</td><td>5 (Friday)</td><td>The payday printed on runs and payslips.</td></tr>
+  <tr><td>Extra time requires an OT decision</td><td>Off</td><td>On: overtime must be approved in Overtime review before finalizing.</td></tr>
+  <tr><td>Night work / Night differential rate</td><td>Flag · 0.10</td><td>DOLE computation only: flag night hours, or pay 10% more for 10 PM–6 AM.</td></tr>
+  <tr><td>Implausible session length</td><td>960 min (16 h)</td><td>Longer sessions are flagged "long session" and block payroll until reviewed.</td></tr>
+  <tr><td>When location is unavailable</td><td>Save and flag</td><td>Or "Block attendance until location works".</td></tr>
+  <tr><td>Location older than … is stale</td><td>120000 ms (2 min)</td><td>Older positions are not accepted as current.</td></tr>
+  <tr><td>Wrong PINs before lockout / PIN lockout</td><td>5 · 15 min</td><td>Per employee.</td></tr>
+  <tr><td>Wrong PINs per device / 15 min</td><td>15</td><td>Protects against guessing on one device.</td></tr>
+  <tr><td>PIN check valid for</td><td>90 s</td><td>Time to press Clock In / Out after a correct PIN.</td></tr>
+  <tr><td>Site sign-in attempts / lockout</td><td>10 · 15 min</td><td>For the site password on the app.</td></tr>
+  <tr><td>Device session lifetime</td><td>180 days</td><td>How long a device stays signed in.</td></tr>
+  <tr><td>Policy notes</td><td>—</td><td>Free text to record the owner's decisions. <b class="ui">Save &amp; mark policies confirmed</b> stamps the date.</td></tr>
+</table>
+
+<h2 id="pol-rules">Tab: Statutory rules</h2>
+<p>Versions of the SSS, PhilHealth, Pag-IBIG and BIR withholding tables. They are used <b>only by the DOLE computation</b>. They were loaded as <span class="tag gy">draft</span> and must be checked against the current official tables and approved by an admin before that computation can finalize payroll. In the construction computation, contributions come from each employee's Deductions tab, so the Dashboard reminder about draft rules can be ignored.</p>
+<ul>
+  <li><span class="btn">Parameters</span> shows the rates and brackets. <span class="btn">Approve</span> locks a draft. <span class="btn">New version</span> copies a rule so you can enter new figures with a new effective date. <span class="btn">End date</span> and <span class="btn">Retire</span> stop an old version.</li>
+</ul>
+<h2 id="pol-holidays">Tabs: Holidays and Day multipliers</h2>
+<p><b class="ui">Holidays</b> holds the calendar per year (regular, special non-working, special working; national or for one site). Press <span class="btn">Add holiday</span> to add one with its official source. <b class="ui">Day multipliers</b> lists the DOLE pay rates per kind of day. Both are used only by the DOLE computation; in the construction computation holiday pay is entered by hand (Chapter 13).</p>
+<div class="pair">
+  <figure><div class="crop" style="--h:70mm"><img src="img/policies-holidays.png" alt=""></div><figcaption>Holiday calendar (first rows).</figcaption></figure>
+  <figure style="flex:.75"><img src="img/policies-multipliers.png" alt=""><figcaption>Day multipliers.</figcaption></figure>
+</div>
+
+<!-- ============================== 17 ============================== -->
+<h1 id="users"><span class="n">17</span>Users &amp; access</h1>
+<p class="lead">Menu: <span class="path">Setup ▸ Users &amp; access</span> (admins only).</p>
+<h2 id="users-approve">Approve a new staff member</h2>
+<ol class="steps">
+  <li>The person requests access on the sign-in page (Chapter 3). They appear here as <span class="tag a">pending</span>.</li>
+  <li>Press <span class="btn">Approve</span> on their row.</li>
+  <li>Choose the <b class="ui">Role</b>: <i>Staff — assigned sites</i> or <i>Admin — everything</i>.</li>
+  <li>For staff, tick the sites they may work with, or <b class="ui">All sites</b>.</li>
+  <li>Keep <b class="ui">Active</b> ticked and press <span class="btn">Save</span>.</li>
+</ol>
+<div class="pair">
+  <figure><img src="img/users.png" alt=""><figcaption>Users list.</figcaption></figure>
+  <figure style="flex:.6"><img src="img/users-edit.png" alt=""><figcaption>Role and site access.</figcaption></figure>
+</div>
+<ul>
+  <li>To remove someone's access, press <span class="btn">Edit</span> and untick <b class="ui">Active</b>.</li>
+  <li>There must always be at least one active admin; the system refuses to remove the last one.</li>
+  <li>Staff see only employees, attendance and payroll of their assigned sites.</li>
+</ul>
+<div class="box tip"><b>The very first admin</b>On a brand-new database nobody is an admin yet. After signing up on the website, run this once in the Supabase SQL Editor: <code>select public.bootstrap_admin('your@email');</code></div>
+
+<!-- ============================== 18 ============================== -->
+<h1 id="audit"><span class="n">18</span>Audit log</h1>
+<p class="lead">Menu: <span class="path">Setup ▸ Audit log</span> (admins only). A permanent record of every change to people, pay, rules and access.</p>
+<ol class="steps">
+  <li>Set the <b class="ui">From</b> and <b class="ui">To</b> dates. Optionally choose a <b class="ui">Record type</b> (employees, rates, sites, payroll runs, users…).</li>
+  <li>Each row shows when, who, what action (insert, update, delete), which record and which fields changed.</li>
+  <li>Press <span class="btn">Details</span> to see the values before and after.</li>
+</ol>
+<figure><div class="crop" style="--h:100mm"><img src="img/audit.png" alt=""></div><figcaption>Audit log (first rows).</figcaption></figure>
+<p>The log cannot be edited or deleted. Passwords and PINs are never written to it. Attendance corrections have their own history inside each session (Chapter 8).</p>
+
+<!-- ============================== 19 ============================== -->
+<h1 id="compute"><span class="n">19</span>How pay is computed</h1>
+<p class="lead">The default is the company's <b>construction computation</b>. R2 means "rounded to 2 decimals".</p>
+<h2 id="comp-day">Each working day</h2>
+<pre>Gross hours   = time between Clock In and Clock Out
+Lunch         = 1 hour if gross hours are 8 or more, otherwise 0
+Worked hours  = gross hours − lunch, rounded DOWN to a whole hour
+Regular hours = worked hours, but not more than 8
+Overtime (OT) = gross hours − 9, if more than zero (R2)</pre>
+<div class="diagram">
+<svg viewBox="0 0 760 132" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+  <text x="20" y="20" font-weight="700" fill="#111827">Example: Clock In 7:00 AM, Clock Out 6:00 PM  (gross 11 hours)</text>
+  <rect x="20" y="34" width="262" height="40" fill="#2459bd"/><rect x="282" y="34" width="65.5" height="40" fill="#cbd2dc"/><rect x="347.5" y="34" width="262" height="40" fill="#2459bd"/><rect x="609.5" y="34" width="131" height="40" fill="#f79009"/>
+  <g fill="#fff" font-weight="700" text-anchor="middle"><text x="151" y="59">Regular 4 h</text><text x="478" y="59">Regular 4 h</text><text x="675" y="59">Overtime 2 h</text></g><text x="315" y="59" text-anchor="middle" font-weight="700" fill="#374151">Lunch</text>
+  <g fill="#4b5563" font-size="9.5" text-anchor="middle"><text x="20" y="88">7:00</text><text x="282" y="88">11:00</text><text x="347" y="88">12:00</text><text x="609" y="88">4:00</text><text x="740" y="88">6:00 PM</text></g>
+  <text x="20" y="112" fill="#111827">11 h gross − 1 h lunch = 10 h worked  →  <tspan font-weight="700">8 regular hours</tspan> (1 paid day)   ·   OT = 11 − 9 = <tspan font-weight="700">2 hours</tspan></text>
+  <text x="20" y="127" fill="#6b7280" font-size="9.5">Where lunch falls on the clock does not matter; the computation only uses the totals.</text>
+</svg>
+<div class="cap">How one long day is split into regular time, lunch and overtime.</div>
+</div>
+<table>
+  <tr><th>Clock In – Out</th><th class="r">Gross</th><th class="r">Lunch</th><th class="r">Worked</th><th class="r">Regular</th><th class="r">OT</th><th>Paid as</th></tr>
+  <tr><td>7:00 AM – 4:00 PM</td><td class="r">9.00 h</td><td class="r">1 h</td><td class="r">8 h</td><td class="r">8 h</td><td class="r">0.00 h</td><td>1 day</td></tr>
+  <tr><td>7:00 AM – 5:30 PM</td><td class="r">10.50 h</td><td class="r">1 h</td><td class="r">9 h</td><td class="r">8 h</td><td class="r">1.50 h</td><td>1 day + 1.5 h OT</td></tr>
+  <tr><td>7:00 AM – 3:30 PM</td><td class="r">8.50 h</td><td class="r">1 h</td><td class="r">7 h</td><td class="r">7 h</td><td class="r">0.00 h</td><td>7/8 of a day</td></tr>
+  <tr><td>7:00 AM – 12:00 NN (half day)</td><td class="r">5.00 h</td><td class="r">0</td><td class="r">5 h</td><td class="r">5 h</td><td class="r">0.00 h</td><td>5/8 of a day</td></tr>
+</table>
+<p>Sunday is the rest day, decided by the calendar date of the Clock In. A shift that passes midnight counts on the day it started.</p>
+
+<h2 id="comp-week">The week</h2>
+<pre>Normal days        = regular hours on Monday–Saturday ÷ 8   (plus paid leave hours ÷ 8)
+Rest-day days      = regular hours on Sunday ÷ 8
+Rest-day rate      = R2(daily rate × 1.30)
+Normal wages       = R2(daily rate × normal days)
+Rest-day wages     = R2(rest-day rate × rest-day days)
+OT hourly rate     = R2(daily rate ÷ 8 × 1.25)
+Rest-day OT rate   = R2( R2(rest-day rate ÷ 8) × 1.30 )
+Gross pay          = wages + OT pay + holiday pay + allowances + other earnings
+Net pay            = gross pay − deductions        (never below zero)</pre>
+<p>Deductions are taken in this order: SSS, PhilHealth, Pag-IBIG, withholding tax, SSS loan, additional deduction (all from the employee's Deductions tab), then one-time deductions entered on the run, then cash-advance installments.</p>
+
+<div class="keep"><h2 id="comp-example">Worked example: daily rate ₱600</h2>
+<p>One week: Monday 7:00 AM–6:00 PM, Tuesday to Friday 7:00 AM–4:00 PM, Sunday 7:00 AM–5:00 PM. Deductions ₱500.</p>
+<table>
+  <tr><th>Part</th><th>Calculation</th><th class="r">Amount</th></tr>
+  <tr><td>Normal wages</td><td>5 days × ₱600</td><td class="r">₱3,000.00</td></tr>
+  <tr><td>Rest-day rate</td><td>₱600 × 1.30</td><td class="r">₱780.00</td></tr>
+  <tr><td>Rest-day wages</td><td>1 day × ₱780</td><td class="r">₱780.00</td></tr>
+  <tr><td>OT hourly rate</td><td>(₱600 ÷ 8) × 1.25</td><td class="r">₱93.75</td></tr>
+  <tr><td>OT pay (Monday)</td><td>2 hours × ₱93.75</td><td class="r">₱187.50</td></tr>
+  <tr><td>Rest-day OT rate</td><td>(₱780 ÷ 8) × 1.30</td><td class="r">₱126.75</td></tr>
+  <tr><td>Rest-day OT pay (Sunday)</td><td>1 hour × ₱126.75</td><td class="r">₱126.75</td></tr>
+  <tr><td><b>Gross pay</b></td><td>3,000 + 780 + 187.50 + 126.75</td><td class="r"><b>₱4,094.25</b></td></tr>
+  <tr><td><b>Net pay</b></td><td>4,094.25 − 500</td><td class="r"><b>₱3,594.25</b></td></tr>
+</table>
+<p>This exact example is one of the automatic tests of the system and was also run on the live website.</p></div>
+
+<h2 id="comp-notes">Things the system deliberately does differently from the old software</h2>
+<ul>
+  <li>A day with missing or invalid times is <b>not</b> paid as 8 hours. It is flagged for staff to correct.</li>
+  <li>An employee with no daily rate is flagged; no ₱600 default is assumed.</li>
+  <li>Monthly contribution amounts are not charged in full every week. Enter the weekly amount on the Deductions tab.</li>
+  <li>When pay is too small for the deductions, the shortfall is shown as a warning instead of quietly disappearing.</li>
+</ul>
+
+<h2 id="comp-dole">The other option: DOLE statutory engine</h2>
+<p>Switch in Policies &amp; rules ▸ Payroll computation. It pays by the minute (daily rate ÷ 480), applies each schedule's unpaid break and rest days, computes holiday pay automatically from the holiday calendar, and calculates SSS, PhilHealth, Pag-IBIG and withholding tax from approved rule tables, reconciled per month. Total pay rates per kind of day:</p>
+<table>
+  <tr><th>Kind of day</th><th class="r">First 8 hours</th><th class="r">Overtime per hour</th></tr>
+  <tr><td>Ordinary working day</td><td class="r">100%</td><td class="r">125%</td></tr>
+  <tr><td>Rest day, or special non-working day</td><td class="r">130%</td><td class="r">169%</td></tr>
+  <tr><td>Special non-working day that is also a rest day</td><td class="r">150%</td><td class="r">195%</td></tr>
+  <tr><td>Regular holiday</td><td class="r">200%</td><td class="r">260%</td></tr>
+  <tr><td>Regular holiday that is also a rest day</td><td class="r">260%</td><td class="r">338%</td></tr>
+</table>
+<p>Before using it, an admin must verify and approve the statutory rules and the holiday calendar (Chapter 16).</p>
+
+<!-- ============================== 20 ============================== -->
+<h1 id="security"><span class="n">20</span>Security and privacy</h1>
+<table>
+  <tr><th style="width:30%">Protection</th><th>How it works</th></tr>
+  <tr><td>The app sees only attendance</td><td>The site sign-in can do seven things only: sign in, check its session, list its own employees, check a PIN, save a punch, re-check a punch, sign out. It cannot read pay, payslips, government numbers or PINs, even by calling the server directly.</td></tr>
+  <tr><td>Staff see only their sites</td><td>The database itself filters every table by the staff member's assigned sites.</td></tr>
+  <tr><td>Secrets are not readable</td><td>PINs, site passwords and device keys are stored only as one-way hashes. Nobody, including admins, can view an existing PIN or password.</td></tr>
+  <tr><td>Guessing is blocked</td><td>5 wrong PINs lock the PIN for 15 minutes; 15 wrong PINs lock a device for 15 minutes; 10 wrong site passwords lock the site sign-in for 15 minutes. Lockouts appear on the Dashboard.</td></tr>
+  <tr><td>Attendance cannot be rewritten</td><td>Punches are permanent. Corrections need a reason, record who made them and keep the original.</td></tr>
+  <tr><td>Finalized pay cannot be rewritten</td><td>Finalized runs and payslips are locked. Changes go through Void and Reissue, which leave a visible trail.</td></tr>
+  <tr><td>Location</td><td>Taken only at Clock In / Clock Out, with the employee able to see the notice on the app. No background tracking. Location shows where the shared device was, not who typed the PIN.</td></tr>
+  <tr><td>Audit trail</td><td>Every change by admins and staff is logged with the person and time.</td></tr>
+  <tr><td>Encrypted connection</td><td>The website and the app use HTTPS for all traffic.</td></tr>
+</table>
+<div class="box stop"><b>Good habits</b>Use a strong, private password for every website account and never share accounts. Change a site's app password when a supervisor leaves. Revoke lost devices at once. Hand PINs over privately and never write them on shared notes or group chats.</div>
+
+<!-- ============================== 21 ============================== -->
+<h1 id="trouble"><span class="n">21</span>Troubleshooting and common questions</h1>
+<table>
+  <tr><th style="width:36%">Problem</th><th>What to do</th></tr>
+  <tr><td>Website: "Invalid login credentials"</td><td>Clear the Password box and type it yourself; the browser may be filling in an old password. Check you are using your current email.</td></tr>
+  <tr><td>Website: "Waiting for access"</td><td>An admin has not approved your account yet (Chapter 17).</td></tr>
+  <tr><td>Website: "Supabase is not configured"</td><td>The hosting is missing its two settings. See Chapter 22, Hosting.</td></tr>
+  <tr><td>App: "Wrong site name or password"</td><td>Type the site name exactly as on Sites &amp; devices. If the password is forgotten, an admin sets a new one with Change password.</td></tr>
+  <tr><td>App: an employee is not in the list</td><td>Check they are Active, assigned to this site (Site &amp; PIN tab) and that the assignment has already started. Pull the list down to refresh.</td></tr>
+  <tr><td>Employee forgot their PIN</td><td>Employee page ▸ Site &amp; PIN ▸ Reset with new random PIN.</td></tr>
+  <tr><td>Employee forgot to clock out</td><td>Attendance ▸ View "Open sessions" ▸ open it ▸ Close / correct, with the real time and a reason.</td></tr>
+  <tr><td>Employee clocked in by mistake</td><td>Open the session and press Void, with a reason.</td></tr>
+  <tr><td>No signal at the site all day</td><td>Attendance ▸ Add missing session for each person, with a reason.</td></tr>
+  <tr><td>Payroll: Finalize button is grey</td><td>There are blocking exceptions. Fix each one (Chapter 13, Step 3) and press Recalculate.</td></tr>
+  <tr><td>Payroll: an employee is missing from the run</td><td>They have no attendance, leave or pay in that week, they belong to a site not ticked for this run, or they are already in another run of the same week.</td></tr>
+  <tr><td>Payroll: "No daily rate effective on …"</td><td>Add a rate whose effective date is on or before that work date.</td></tr>
+  <tr><td>Payroll: nothing was deducted</td><td>The employee's Deductions tab is empty or the rows are not ticked Enabled.</td></tr>
+  <tr><td>Payroll: "changed since review"</td><td>Attendance or pay data changed after the run was submitted. Review the new figures, submit and finalize again.</td></tr>
+  <tr><td>Wrong pay found after finalizing</td><td>Void the run, correct the data, then Reissue (Chapter 13).</td></tr>
+  <tr><td>"Payroll is finalized through …" when changing a rate</td><td>That date is already paid. Void and reissue the affected run, or make the new rate effective after that date.</td></tr>
+  <tr><td>A site or employee cannot be deleted</td><td>By design. Untick Active instead, so history stays complete.</td></tr>
+</table>
+
+<!-- ============================== 22 ============================== -->
+<h1 id="tech"><span class="n">22</span>Technical reference</h1>
+<p class="lead">For the person who maintains the system. Day-to-day users can skip this chapter.</p>
+<h2 id="tech-stack">What it is built with</h2>
+<table>
+  <tr><th style="width:21%">Part</th><th style="width:33%">Technology</th><th>Where</th></tr>
+  <tr><td>Database and API</td><td>Supabase (PostgreSQL 17, row-level security, SQL functions, email sign-in)</td><td>Folder <code>supabase/</code>; hosted Supabase project</td></tr>
+  <tr><td>Admin website</td><td>React 19, TypeScript, Vite, Tailwind CSS, supabase-js</td><td>Folder <code>admin/</code>; hosted on Netlify at rhbc.online</td></tr>
+  <tr><td>Attendance app</td><td>Expo SDK 54 (React Native 0.81), expo-location, expo-secure-store</td><td>Folder <code>app/</code></td></tr>
+  <tr><td>Tests</td><td>Node scripts, PGlite, embedded PostgreSQL 17, Playwright</td><td>Folders <code>supabase/tests/</code> and <code>e2e/</code></td></tr>
+  <tr><td>Source code</td><td>Git repository</td><td>github.com/allencortez1000/Insync (branch <code>main</code>)</td></tr>
+</table>
+
+<h2 id="tech-data">Main records in the database</h2>
+<div class="diagram">
+<svg viewBox="0 0 760 286" width="760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+  <defs><marker id="a5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7280"/></marker></defs>
+  <g stroke="#9db3d8" fill="#f3f6fb">
+    <rect x="10" y="14" width="130" height="46" rx="6"/><rect x="10" y="94" width="130" height="46" rx="6"/><rect x="10" y="174" width="130" height="46" rx="6"/>
+    <rect x="210" y="54" width="140" height="56" rx="6" fill="#dbe8ff" stroke="#2f6fdf"/><rect x="210" y="150" width="140" height="80" rx="6"/>
+    <rect x="420" y="14" width="140" height="46" rx="6"/><rect x="420" y="84" width="140" height="46" rx="6"/><rect x="420" y="154" width="140" height="46" rx="6"/><rect x="420" y="224" width="140" height="46" rx="6"/>
+    <rect x="620" y="84" width="130" height="46" rx="6"/><rect x="620" y="154" width="130" height="46" rx="6"/><rect x="620" y="224" width="130" height="46" rx="6"/>
+  </g>
+  <g text-anchor="middle" fill="#0f172a">
+    <text x="75" y="34" font-weight="700">Site</text><text x="75" y="49" fill="#4b5563" font-size="9.3">name, code, app password</text>
+    <text x="75" y="114" font-weight="700">Device session</text><text x="75" y="129" fill="#4b5563" font-size="9.3">a signed-in phone</text>
+    <text x="75" y="194" font-weight="700">Website user</text><text x="75" y="209" fill="#4b5563" font-size="9.3">admin / staff + site scope</text>
+    <text x="280" y="77" font-weight="700" fill="#1d4796">Employee</text><text x="280" y="92" fill="#374151" font-size="9.3">code, names, IDs, active</text>
+    <text x="280" y="168" font-weight="700">Per employee, dated</text><text x="280" y="183" fill="#4b5563" font-size="9.3">site assignment · daily rate</text><text x="280" y="196" fill="#4b5563" font-size="9.3">schedule · PIN · deductions</text><text x="280" y="209" fill="#4b5563" font-size="9.3">leave · allowances · advances</text>
+    <text x="490" y="34" font-weight="700">Work session</text><text x="490" y="49" fill="#4b5563" font-size="9.3">clock in / out, flags</text>
+    <text x="490" y="104" font-weight="700">Payroll period</text><text x="490" y="119" fill="#4b5563" font-size="9.3">one week + payday</text>
+    <text x="490" y="174" font-weight="700">Payroll run</text><text x="490" y="189" fill="#4b5563" font-size="9.3">status, sites, totals</text>
+    <text x="490" y="244" font-weight="700">Result + lines</text><text x="490" y="259" fill="#4b5563" font-size="9.3">per employee, every peso</text>
+    <text x="685" y="104" font-weight="700">Punch (event)</text><text x="685" y="119" fill="#4b5563" font-size="9.3">time, location, device</text>
+    <text x="685" y="174" font-weight="700">Correction</text><text x="685" y="189" fill="#4b5563" font-size="9.3">before, after, reason</text>
+    <text x="685" y="244" font-weight="700">Payslip + payment</text><text x="685" y="259" fill="#4b5563" font-size="9.3">frozen copy, paid record</text>
+  </g>
+  <g stroke="#6b7280" stroke-width="1.3" marker-end="url(#a5)" fill="none">
+    <line x1="75" y1="60" x2="75" y2="92"/><path d="M140,37 C175,37 180,70 208,74"/><line x1="280" y1="110" x2="280" y2="148"/>
+    <path d="M350,70 C385,60 390,42 418,38"/><line x1="490" y1="130" x2="490" y2="152"/><line x1="490" y1="200" x2="490" y2="222"/>
+    <path d="M560,37 C590,37 600,95 618,104"/><path d="M560,45 C585,60 600,160 618,172"/><line x1="560" y1="247" x2="618" y2="247"/>
+    <path d="M350,96 C395,110 400,236 418,244"/>
+  </g>
+  <text x="380" y="282" text-anchor="middle" fill="#6b7280" font-size="9.3">Also: holidays, statutory rules, contribution ledger, security events and the audit log.</text>
+</svg>
+<div class="cap">Simplified map of the main records and how they relate.</div>
+</div>
+
+<h2 id="tech-migrations">Database migrations</h2>
+<p>The database is created by running the files in <code>supabase/migrations/</code> in order in the Supabase SQL Editor. All twelve have been applied to the live database. Any new file added later must be run the same way.</p>
+<table>
+  <tr><th style="width:8%">No.</th><th style="width:33%">File (ends with)</th><th>What it adds</th></tr>
+  <tr><td>1</td><td><code>000100_schema</code></td><td>All tables, types and integrity rules.</td></tr>
+  <tr><td>2</td><td><code>000200_security</code></td><td>Roles, row-level security, permissions, audit trigger.</td></tr>
+  <tr><td>3</td><td><code>000300_attendance_device_api</code></td><td>The functions the app calls (sign-in, roster, PIN check, punch).</td></tr>
+  <tr><td>4</td><td><code>000400_payroll_engine</code></td><td>DOLE statutory payroll engine and the run life-cycle.</td></tr>
+  <tr><td>5</td><td><code>000500_admin_api</code></td><td>Website functions: PINs, transfers, corrections, OT, leave, users; views.</td></tr>
+  <tr><td>6</td><td><code>000600_reference_data</code></td><td>Multipliers, leave types, sample schedules, draft statutory rules, 2026 holidays.</td></tr>
+  <tr><td>7</td><td><code>000700_lockdown</code></td><td>Final permission lock-down for the app's key.</td></tr>
+  <tr><td>8</td><td><code>000800_site_name_login</code></td><td>Sign in with site name + password; automatic, locked site codes.</td></tr>
+  <tr><td>9</td><td><code>000900_employee_code_auto</code></td><td>Automatic, locked employee codes (EMP-0001…).</td></tr>
+  <tr><td>10</td><td><code>001000_construction_payroll</code></td><td>Construction computation, per-employee deductions, holiday-pay adjustments.</td></tr>
+  <tr><td>11</td><td><code>001100_fixes</code></td><td>Site codes for names with ñ and accents.</td></tr>
+  <tr><td>12</td><td><code>001200_safeupdate_fix</code></td><td>Fix so payroll Calculate works through the Supabase API.</td></tr>
+</table>
+
+<h2 id="tech-host">Hosting and settings</h2>
+<ul>
+  <li><b>Website.</b> Netlify builds the <code>admin/</code> folder (settings in <code>netlify.toml</code>) every time something is pushed to the <code>main</code> branch on GitHub. Domain: rhbc.online (DNS at Hostinger: A record <code>@</code> → Netlify, CNAME <code>www</code> → the Netlify site).</li>
+  <li><b>Two settings the website needs</b> (Netlify ▸ Site configuration ▸ Environment variables): <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>. After changing them, trigger a new deploy. Never use the <code>service_role</code> key in the website or app.</li>
+  <li><b>App.</b> The same two values with the names <code>EXPO_PUBLIC_SUPABASE_URL</code> and <code>EXPO_PUBLIC_SUPABASE_ANON_KEY</code> in <code>app/.env</code>.</li>
+  <li><b>Supabase ▸ Authentication ▸ URL Configuration.</b> Site URL <code>https://rhbc.online</code>, so confirmation emails link to the right place.</li>
+</ul>
+<h3>Running on the office computer</h3>
+<pre>npm.cmd run web        start the website locally (http://localhost:5173)
+npm.cmd run app        start the attendance app for Expo Go (shows a QR code)
+npm.cmd run test:db    run the 27 database tests
+npm.cmd run test:pg17  the same tests on a real PostgreSQL 17 + security audit</pre>
+
+<h2 id="tech-tests">How the system was tested</h2>
+<ul>
+  <li><b>27 automatic database tests</b>, on two database engines: roster isolation, PIN lockout, no duplicate punches, one open session, location handling, transfers, permissions, the payroll fixtures, month-end reconciliation, void and reissue, and the construction worked example.</li>
+  <li><b>Security audit</b>: the app's key can reach only its seven functions; every table has row-level security.</li>
+  <li><b>Website smoke test</b>: every page, tab and form opened in a real browser against the live data with no errors.</li>
+  <li><b>Live end-to-end test</b> (20 steps): site → employee → PIN → app sign-in → Clock In / Out → corrections → payroll → payslip → payment → reports → clean-up. It left one inactive test site ("ZZ Test Site"), one inactive test employee and one void payroll run in the database.</li>
+</ul>
+
+<h2 id="tech-limits">Known limits and next steps</h2>
+<ul>
+  <li><b>The app is not yet an installable file.</b> It runs through Expo Go from the office computer. Next step: build an Android APK with Expo's build service (EAS) and install it on each site device; set the app's real package name in <code>app/app.json</code> first.</li>
+  <li><b>App screens were not tested on many devices.</b> Sign-in and Clock In were confirmed on one Android phone; the server side of every app action is covered by tests.</li>
+  <li><b>No offline mode.</b> Attendance needs internet; use Add missing session when there is none.</li>
+  <li><b>Holiday pay is manual</b> in the construction computation.</li>
+  <li><b>Not included:</b> bank transfers, filing or paying government contributions, 13th-month pay, selfies or biometrics, employee self-service accounts.</li>
+  <li><b>DOLE computation:</b> its statutory tables and the 2026 holiday list were loaded as drafts and must be verified against official sources before use.</li>
+</ul>
+
+</body>
+</html>

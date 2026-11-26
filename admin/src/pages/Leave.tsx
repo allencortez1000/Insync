@@ -11,7 +11,7 @@ import { Badge, Button, Card, Empty, ErrorBox, Field, Input, Modal, Notice, Page
 interface LeaveType { id: string; code: string; name: string; is_paid: boolean; requires_balance: boolean }
 interface LeaveEntry {
   id: string; employee_id: string; leave_type_id: string; leave_date: string; hours: number; status: LeaveStatus;
-  reason: string | null; decision_note: string | null;
+  reason: string | null; decision_note: string | null; source?: 'staff' | 'employee';
   employees: { display_name: string; employee_code: string } | null; leave_types: { name: string; is_paid: boolean } | null;
 }
 
@@ -46,7 +46,7 @@ export function Leave() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Leave" subtitle="Staff record leave for employees. Approved paid leave is paid without a clock-in and reduces the balance."
+      <PageHeader title="Leave" subtitle="Employees request leave from their employee account, or staff record it for them. Approved paid leave is paid without a clock-in and reduces the balance."
         actions={<Button variant="primary" onClick={() => setCreating(true)}>Record leave</Button>} />
       <div className="filter-bar">
         <Field label="Show" className="w-44">
@@ -68,7 +68,7 @@ export function Leave() {
                 <Td>{e.employees?.display_name} <span className="text-xs text-gray-400">{e.employees?.employee_code}</span></Td>
                 <Td>{e.leave_types?.name} {e.leave_types?.is_paid ? <Badge tone="green">paid</Badge> : <Badge>unpaid</Badge>}</Td>
                 <Td className="num">{Number(e.hours)}</Td>
-                <Td><StatusBadge status={e.status} /></Td>
+                <Td><StatusBadge status={e.status} />{e.source === 'employee' && <div className="mt-1"><Badge tone="blue">requested by employee</Badge></div>}</Td>
                 <Td className="text-xs">{e.reason}{e.decision_note && <div className="text-gray-500">→ {e.decision_note}</div>}</Td>
                 <Td className="whitespace-nowrap text-right">
                   {e.status === 'pending' && <><Button size="sm" variant="primary" onClick={() => void decide(e, true)}>Approve</Button>{' '}

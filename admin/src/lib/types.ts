@@ -127,6 +127,8 @@ export interface WorkSessionRow {
   out_longitude: number | null;
   out_accuracy_m: number | null;
   in_device_label: string | null;
+  in_auth_method?: 'pin' | 'face' | null;
+  out_auth_method?: 'pin' | 'face' | null;
 }
 
 export interface PayrollRunRow {

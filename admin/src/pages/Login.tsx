@@ -75,7 +75,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
   );
 }
 
-function IconInput({ icon, label, trailing, ...props }: InputHTMLAttributes<HTMLInputElement> & { icon: IconName; label: string; trailing?: ReactNode }) {
+export function IconInput({ icon, label, trailing, ...props }: InputHTMLAttributes<HTMLInputElement> & { icon: IconName; label: string; trailing?: ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-gray-700">{label}</span>
@@ -162,7 +162,15 @@ export function Login() {
             {signin ? 'Request access' : 'Sign in'}
           </button>
         </div>
-        <div className="border-t border-gray-100 pt-5">
+        <div className="space-y-2 border-t border-gray-100 pt-5">
+          <a href="/employee" className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 text-sm hover:border-brand-200 hover:bg-brand-50">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><Icon name="user" /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-gray-900">Employee account</span>
+              <span className="block text-gray-500">Your attendance, leave, payslips and 13th month pay</span>
+            </span>
+            <Icon name="arrowRight" className="h-4 w-4 text-gray-400" />
+          </a>
           <a href="/site/" className="flex items-center gap-3 rounded-xl border border-gray-200 p-3 text-sm hover:border-brand-200 hover:bg-brand-50">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><Icon name="phone" /></span>
             <span className="min-w-0 flex-1">

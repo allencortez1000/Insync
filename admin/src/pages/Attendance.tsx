@@ -178,6 +178,11 @@ function SessionDetail({ row, onClose, onChanged }: { row: WorkSessionRow; onClo
           <LocationLine label="In location" status={row.in_location_status} lat={row.in_latitude} lng={row.in_longitude} acc={row.in_accuracy_m} />
           <LocationLine label="Out location" status={row.out_location_status} lat={row.out_latitude} lng={row.out_longitude} acc={row.out_accuracy_m} />
           <div className="text-sm"><span className="text-gray-500">Device:</span> {row.in_device_label ?? '—'}</div>
+          {row.source === 'device' && (
+            <div className="text-sm"><span className="text-gray-500">Verified by:</span>{' '}
+              {row.in_auth_method === 'face' ? 'face' : 'PIN'} at clock in{row.out_auth_method ? <>, {row.out_auth_method === 'face' ? 'face' : 'PIN'} at clock out</> : null}
+            </div>
+          )}
           <div className="text-sm"><span className="text-gray-500">Flags:</span> {row.review_flags.join(', ') || 'none'} {row.reviewed_at && `· reviewed ${dateTime(row.reviewed_at)}`}</div>
           {row.review_note && <div className="text-sm"><span className="text-gray-500">Note:</span> {row.review_note}</div>}
         </div>

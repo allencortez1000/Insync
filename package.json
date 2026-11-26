@@ -11,6 +11,7 @@
     "install:all": "npm --prefix admin install && npm --prefix app install && npm --prefix supabase/tests install && npm --prefix e2e install",
     "test:pg17": "npm --prefix e2e run pg17",
     "build:all": "node scripts/build-web.mjs",
-    "dev:site": "npm --prefix app run web -- --port 8081"
+    "dev:site": "npm --prefix app run web -- --port 8081",
+    "dev:phone": "node scripts/build-web.mjs --site-only && npm --prefix admin run dev:phone"
   }
 }
