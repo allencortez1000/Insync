@@ -22,8 +22,8 @@ export function FaceScreen({
 }: {
   employee: RosterEmployee;
   notice?: Bi;
-  /** Sends one face template to the server. */
-  onVerify: (descriptor: number[]) => Promise<FaceResult>;
+  /** Sends two camera frames (face templates) to the server; both must match the recorded face. */
+  onVerify: (frames: number[][]) => Promise<FaceResult>;
   /** Offered only when the camera cannot be used on this device. */
   onUsePin?: () => void;
   onBack: () => void;
@@ -71,6 +71,7 @@ export function FaceScreen({
       setPhase('looking');
       let mismatches = 0;
       let lastSent = 0;
+      let firstFrame: { descriptor: number[]; at: number } | null = null;
       while (!stopped) {
         // Hand the device back to the roster when nobody completes the check.
         if (Date.now() - started > GIVE_UP_MS) {
@@ -85,12 +86,26 @@ export function FaceScreen({
         }
         if (stopped) return;
         setHint({ en: faceHint(reading) });
-        if (goodFace(reading) && Date.now() - lastSent > 900) {
+        if (!goodFace(reading)) {
+          if (firstFrame && Date.now() - firstFrame.at > 2500) firstFrame = null;   // the person moved away: start over
+        } else if (Date.now() - lastSent > 900) {
+          // Two separate good frames are needed, a moment apart.
+          if (!firstFrame) {
+            firstFrame = { descriptor: reading.descriptor, at: Date.now() };
+            await sleep(250);
+            continue;
+          }
+          if (Date.now() - firstFrame.at < 300) {
+            await sleep(100);
+            continue;
+          }
+          const frames = [firstFrame.descriptor, reading.descriptor];
+          firstFrame = null;
           setPhase('checking');
           setHint(t.faceChecking);
           let result: FaceResult;
           try {
-            result = await onVerifyRef.current(reading.descriptor);
+            result = await onVerifyRef.current(frames);
           } catch {
             result = { kind: 'error', lines: [t.serverError] };
           }

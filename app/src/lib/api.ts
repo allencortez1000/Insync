@@ -181,8 +181,8 @@ export function siteVerifyPin(token: string, employeeId: string, pin: string) {
 }
 
 /** Face instead of PIN: the server compares the template with the employee's recorded face. */
-export function siteVerifyFace(token: string, employeeId: string, descriptor: number[]) {
-  return call<VerifyPinOk>('site_verify_face', { p_token: token, p_employee_id: employeeId, p_descriptor: descriptor });
+export function siteVerifyFace(token: string, employeeId: string, frames: number[][]) {
+  return call<VerifyPinOk>('site_verify_face', { p_token: token, p_employee_id: employeeId, p_descriptor: frames });
 }
 
 export function sitePunch(

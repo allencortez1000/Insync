@@ -22,7 +22,7 @@ import {
   type RpcResult,
   type VerifyPinOk,
 } from './src/lib/api';
-import { faceSupported } from './src/lib/face';
+import { faceSupported, preloadFaceApi } from './src/lib/face';
 import { captureLocation, ensureLocationPermission, toPayload, type LocationReading } from './src/lib/location';
 import { clearSession, loadSession, saveSession, type StoredSession } from './src/lib/storage';
 import { supabaseConfigured } from './src/lib/supabase';
@@ -250,6 +250,11 @@ function Main() {
   }, [goLogin, setSession]);
 
   // ---------------------------------------------------------------- PIN
+  // Load the face engine while people are still looking for their name, not after they tap it.
+  useEffect(() => {
+    if (faceSupported && roster?.some((e) => e.has_face)) preloadFaceApi();
+  }, [roster]);
+
   // Employees who recorded their face are checked by the camera; everyone else types the PIN.
   const askWho = useCallback(
     (employee: RosterEmployee, notice?: Bi) =>
@@ -259,11 +264,11 @@ function Main() {
   const selectEmployee = useCallback((employee: RosterEmployee) => askWho(employee), [askWho]);
 
   const verifyFace = useCallback(
-    async (employee: RosterEmployee, descriptor: number[]): Promise<FaceResult> => {
+    async (employee: RosterEmployee, frames: number[][]): Promise<FaceResult> => {
       const s = sessionRef.current;
       if (!s) return { kind: 'done' };
       const f = flow.current;
-      const result = await siteVerifyFace(s.token, employee.id, descriptor);
+      const result = await siteVerifyFace(s.token, employee.id, frames);
       if (flow.current !== f) return { kind: 'done' };
 
       if (result.kind === 'network') return { kind: 'error', lines: [t.networkError] };
@@ -536,7 +541,7 @@ function Main() {
           key={employee.id}
           employee={employee}
           notice={screen.notice}
-          onVerify={(descriptor) => verifyFace(employee, descriptor)}
+          onVerify={(frames) => verifyFace(employee, frames)}
           onUsePin={employee.has_pin === false ? undefined : () => show({ name: 'pin', employee })}
           onBack={backToRoster}
         />

@@ -34,7 +34,15 @@ function injectScript(src: string): Promise<void> {
   });
 }
 
+// Detector input size. 320 places the face more precisely than 224, which gives a more reliable template.
+const DETECT_SIZE = 320;
+
 let ready: Promise<FaceApi> | null = null;
+
+/** Starts loading the engine in the background (call it as soon as a face check is likely). */
+export function preloadFaceApi(): void {
+  void loadFaceApi().catch(() => undefined);
+}
 
 /** Loads the engine and its models once (about 7 MB the first time, then cached by the browser). */
 export function loadFaceApi(): Promise<FaceApi> {
@@ -55,6 +63,17 @@ export function loadFaceApi(): Promise<FaceApi> {
       api.nets.faceLandmark68Net.loadFromUri(models),
       api.nets.faceRecognitionNet.loadFromUri(models),
     ]);
+    // Run each model once on a blank picture so the slow first run (the graphics card compiles the
+    // models) happens now, in the background, instead of while the person is waiting at the camera.
+    try {
+      const blank = document.createElement('canvas');
+      blank.width = 160;
+      blank.height = 160;
+      blank.getContext('2d')?.fillRect(0, 0, 160, 160);
+      await api.detectAllFaces(blank, new api.TinyFaceDetectorOptions({ inputSize: DETECT_SIZE, scoreThreshold: 0.5 }));
+      await api.nets.faceLandmark68Net.detectLandmarks(blank);
+      await api.nets.faceRecognitionNet.computeFaceDescriptor(blank);
+    } catch { /* warm-up is only an optimisation */ }
     return api;
   })().catch((e: unknown) => { ready = null; throw e; });
   return ready;
@@ -112,7 +131,7 @@ export function closeCamera(stream: MediaStream | null, video?: HTMLVideoElement
 export async function readFace(api: FaceApi, video: HTMLVideoElement): Promise<FaceReading | null> {
   if (!video.videoWidth) return null;
   const found = await api
-    .detectSingleFace(video, new api.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 }))
+    .detectSingleFace(video, new api.TinyFaceDetectorOptions({ inputSize: DETECT_SIZE, scoreThreshold: 0.5 }))
     .withFaceLandmarks()
     .withFaceDescriptor();
   if (!found) return null;
@@ -129,14 +148,14 @@ export async function readFace(api: FaceApi, video: HTMLVideoElement): Promise<F
 
 /** Good enough to use: confident detection, close to the camera, roughly in the middle. */
 export function goodFace(r: FaceReading | null): r is FaceReading {
-  return !!r && r.score >= 0.6 && r.size >= 0.22 && r.offCentre <= 0.28;
+  return !!r && r.score >= 0.65 && r.size >= 0.25 && r.offCentre <= 0.25;
 }
 
 /** Short instruction for the person in front of the camera. */
 export function faceHint(r: FaceReading | null): string {
   if (!r) return 'Put your face inside the circle';
-  if (r.size < 0.22) return 'Move closer to the camera';
-  if (r.offCentre > 0.28) return 'Move your face to the middle';
-  if (r.score < 0.6) return 'Face the camera, in good light';
+  if (r.size < 0.25) return 'Move closer to the camera';
+  if (r.offCentre > 0.25) return 'Move your face to the middle';
+  if (r.score < 0.65) return 'Face the camera, in good light';
   return 'Hold still…';
 }

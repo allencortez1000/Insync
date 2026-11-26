@@ -11,7 +11,7 @@ export type FaceResult =
 export function FaceScreen(_props: {
   employee: RosterEmployee;
   notice?: Bi;
-  onVerify: (descriptor: number[]) => Promise<FaceResult>;
+  onVerify: (frames: number[][]) => Promise<FaceResult>;
   onUsePin?: () => void;
   onBack: () => void;
 }) {

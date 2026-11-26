@@ -32,7 +32,7 @@ interface Settings {
   period_start_dow: number; payday_offset_days: number; ot_review_required: boolean; night_diff_mode: 'flag' | 'pay';
   night_diff_rate: number; max_session_minutes: number; pin_max_attempts: number; pin_lockout_minutes: number;
   device_max_failed_pins: number; pin_auth_ttl_seconds: number; device_session_days: number; site_login_max_attempts: number;
-  site_login_lockout_minutes: number; location_stale_ms: number; location_failure_policy: 'save_and_flag' | 'block';
+  site_login_lockout_minutes: number; location_stale_ms: number; face_match_threshold: number; location_failure_policy: 'save_and_flag' | 'block';
   holiday_lookback_days: number; policies_confirmed_at: string | null; policy_notes: string | null; updated_at: string;
 }
 const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -117,6 +117,9 @@ function SettingsTab() {
             <Field label="Site sign-in attempts before lock"><Input {...num('site_login_max_attempts')} /></Field>
             <Field label="Site sign-in lockout (min)"><Input {...num('site_login_lockout_minutes')} /></Field>
             <Field label="Device session lifetime (days)"><Input {...num('device_session_days')} /></Field>
+            <Field label="Face match limit" hint="0.30–0.70. Lower = stricter: fewer wrong matches, but the right person is refused more often. 0.45 is the default.">
+              <Input {...num('face_match_threshold')} step={0.01} min={0.3} max={0.7} />
+            </Field>
           </div>
         </Card>
       </div>

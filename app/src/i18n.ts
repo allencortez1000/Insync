@@ -35,7 +35,7 @@ export const t = {
 
   // Face check (instead of the PIN, for employees who recorded their face)
   lookAtCamera: bi('Look at the camera'),
-  faceStarting: bi('Starting the camera…'),
+  faceStarting: bi('Getting the face check ready…'),
   faceChecking: bi('Checking your face…'),
   faceTimedOut: bi('Time ran out. Look at the camera again.'),
   faceNotRecognized: bi('Face not recognized. Keep looking at the camera.'),

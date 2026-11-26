@@ -7,18 +7,21 @@ import { useFeedback } from '../components/feedback';
 import { Badge, Button, Card, ErrorBox, Notice, Spinner, cx } from '../components/ui';
 import { Icon } from '../components/icons';
 import { call } from './api';
-import { CameraError, closeCamera, faceHint, goodFace, loadFaceApi, openCamera, readFace } from './face';
+import { CameraError, closeCamera, faceHint, goodFace, loadFaceApi, openCamera, preloadFaceApi, readFace } from './face';
 
 export interface FaceStatus { enrolled: boolean; samples: number; enrolled_at: string | null }
-const PICTURES = 3;
+const PICTURES = 4;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function FaceCard() {
   const { run, confirm } = useFeedback();
   const status = useAsync(() => call<FaceStatus>('emp_face_status'), []);
   const [recording, setRecording] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const s = status.data;
+  // Get the face engine ready while the employee reads the page.
+  useEffect(() => { preloadFaceApi(); }, []);
 
   async function remove() {
     if (!(await confirm({ title: 'Remove your face?', confirmText: 'Remove', danger: true,
@@ -31,6 +34,8 @@ export function FaceCard() {
       <ErrorBox error={status.error} />
       {status.loading && !s ? <Spinner /> : recording ? (
         <FaceRecorder onCancel={() => setRecording(false)} onSaved={() => { setRecording(false); setJustSaved(true); status.reload(); }} />
+      ) : testing ? (
+        <FaceTester onClose={() => setTesting(false)} />
       ) : (
         <div className="space-y-3 text-sm text-gray-700">
           {justSaved && <Notice tone="green">Your face is recorded. At your site, tap your name and look at the camera to clock in or out.</Notice>}
@@ -43,6 +48,7 @@ export function FaceCard() {
             <Button variant="primary" onClick={() => { setJustSaved(false); setRecording(true); }}>
               <Icon name="eye" className="h-4 w-4" />{s?.enrolled ? 'Record my face again' : 'Record my face'}
             </Button>
+            {s?.enrolled && <Button onClick={() => { setJustSaved(false); setTesting(true); }}>Test my face</Button>}
             {s?.enrolled && <Button onClick={() => void remove()}>Remove my face</Button>}
           </div>
           <p className="text-xs text-gray-500">
@@ -55,11 +61,72 @@ export function FaceCard() {
   );
 }
 
+/** Live score of the face in front of the camera against the recorded face (lower = more alike). */
+function FaceTester({ onClose }: { onClose: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hint, setHint] = useState('Getting ready…');
+  const [error, setError] = useState<string | null>(null);
+  const [score, setScore] = useState<{ distance: number; limit: number; match: boolean } | null>(null);
+
+  useEffect(() => {
+    let stopped = false;
+    let stream: MediaStream | null = null;
+    const video = videoRef.current;
+    (async () => {
+      if (!video) return;
+      try {
+        const [api, opened] = await Promise.all([loadFaceApi(), openCamera(video, () => stopped)]);
+        stream = opened;
+        if (stopped) { closeCamera(stream, video); return; }
+        while (!stopped) {
+          const reading = await readFace(api, video);
+          if (stopped) return;
+          setHint(faceHint(reading));
+          if (goodFace(reading)) {
+            const r = await call<{ distance: number; limit: number; match: boolean }>('emp_face_check', { p_descriptor: reading.descriptor });
+            if (stopped) return;
+            setScore({ distance: Number(r.distance), limit: Number(r.limit), match: r.match });
+          } else {
+            setScore(null);
+          }
+          await sleep(500);
+        }
+      } catch (e) {
+        closeCamera(stream, video);
+        if (!stopped) setError(e instanceof Error ? e.message : String(e));
+      }
+    })();
+    return () => { stopped = true; closeCamera(stream, video); };
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className={cx('relative aspect-square w-full max-w-[18rem] overflow-hidden rounded-full border-4 bg-gray-900',
+        !score ? 'border-gray-300' : score.match ? 'border-green-500' : 'border-red-500')}>
+        <video ref={videoRef} playsInline muted className="h-full w-full -scale-x-100 object-cover" />
+      </div>
+      {error ? <div className="w-full"><ErrorBox error={error} /></div> : score ? (
+        <div className="text-center" role="status">
+          <div className={cx('text-lg font-bold', score.match ? 'text-green-700' : 'text-red-700')}>
+            {score.match ? 'Recognized as you' : 'Not recognized'}
+          </div>
+          <div className="num text-sm text-gray-600">score {score.distance.toFixed(2)} · limit {score.limit.toFixed(2)} (lower score = more alike)</div>
+        </div>
+      ) : <p className="text-center text-base font-semibold text-gray-900" role="status">{hint}</p>}
+      <p className="text-center text-xs text-gray-500">
+        Try it in different light, and let someone else look at the camera: their score should stay above the limit.
+        If another person is recognized as you, tell the office so the limit can be made stricter.
+      </p>
+      <Button onClick={onClose}>Done</Button>
+    </div>
+  );
+}
+
 function FaceRecorder({ onSaved, onCancel }: { onSaved: () => void; onCancel: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [attempt, setAttempt] = useState(0);
   const [phase, setPhase] = useState<'starting' | 'looking' | 'saving' | 'error'>('starting');
-  const [hint, setHint] = useState('Starting the camera…');
+  const [hint, setHint] = useState('Getting ready…');
   const [count, setCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,7 +134,7 @@ function FaceRecorder({ onSaved, onCancel }: { onSaved: () => void; onCancel: ()
     let stopped = false;
     let stream: MediaStream | null = null;
     const video = videoRef.current;
-    setPhase('starting'); setHint('Starting the camera…'); setCount(0); setError(null);
+    setPhase('starting'); setHint('Getting ready…'); setCount(0); setError(null);
 
     (async () => {
       if (!video) return;
@@ -81,8 +148,8 @@ function FaceRecorder({ onSaved, onCancel }: { onSaved: () => void; onCancel: ()
         while (!stopped && pictures.length < PICTURES) {
           const reading = await readFace(api, video);
           if (stopped) return;
-          setHint(faceHint(reading));
-          if (goodFace(reading) && Date.now() - last > 800) {
+          setHint(goodFace(reading) && pictures.length > 0 ? 'Good. Turn your head a tiny bit, then look at the camera again' : faceHint(reading));
+          if (goodFace(reading) && Date.now() - last > 1100) {
             pictures.push(reading.descriptor);
             last = Date.now();
             setCount(pictures.length);
@@ -113,7 +180,7 @@ function FaceRecorder({ onSaved, onCancel }: { onSaved: () => void; onCancel: ()
       <div className={cx('relative aspect-square w-full max-w-[18rem] overflow-hidden rounded-full border-4 bg-gray-900',
         phase === 'error' ? 'border-red-400' : count > 0 ? 'border-green-500' : 'border-brand-500')}>
         <video ref={videoRef} playsInline muted className="h-full w-full -scale-x-100 object-cover" />
-        {phase === 'starting' && <div className="absolute inset-0 flex items-center justify-center text-sm text-white/80">Starting…</div>}
+        {phase === 'starting' && <div className="absolute inset-x-0 bottom-3 text-center text-xs font-medium text-white drop-shadow">Getting ready…</div>}
       </div>
       <div className="flex items-center gap-2" aria-label={`${count} of ${PICTURES} pictures taken`}>
         {Array.from({ length: PICTURES }, (_, i) => (

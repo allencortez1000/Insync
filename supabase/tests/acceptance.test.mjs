@@ -806,12 +806,19 @@ await test('face recognition: enroll in the employee account → Clock In by fac
   const roster = await val(anon(`select site_roster($1)`, [dev.token]));
   assert.equal(roster.employees[0].has_face, true);
   assert.equal(roster.employees[0].has_pin, true);
-  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(stranger))]))).code, 'FACE_MISMATCH');
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([picture(stranger), picture(stranger)])]))).code, 'FACE_MISMATCH');
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([picture(ana), picture(stranger)])]))).code, 'FACE_MISMATCH', 'every frame must match');
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]))).code, 'BAD_REQUEST', 'one frame is not enough');
+  const own = await val(anon(`select emp_face_check($1, $2::jsonb)`, [me.token, JSON.stringify(picture(ana))]));
+  assert.equal(own.match, true, JSON.stringify(own));
+  assert.equal(num(own.limit), 0.45);
+  assert.equal((await val(anon(`select emp_face_check($1, $2::jsonb)`, [me.token, JSON.stringify(picture(stranger))]))).match, false);
   assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([0.1, 0.2])]))).code, 'BAD_REQUEST');
-  const v = await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]));
+  const v = await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([picture(ana), picture(ana)])]));
   assert.equal(v.ok, true, JSON.stringify(v));
   assert.equal(v.next_action, 'clock_in');
   assert.equal(v.method, 'face');
+  assert.equal(num(await val(admin(`select count(*) from security_events where kind = 'face_verified' and employee_id = $1 and (details ->> 'distance') is not null`, [emp.id]))), 1);
   const loc = JSON.stringify({ status: 'captured', latitude: 14.676, longitude: 120.536, accuracy_m: 8, age_ms: 900 });
   const pIn = await val(anon(`select site_punch($1, $2, 'clock_in', gen_random_uuid(), $3::jsonb, now())`, [dev.token, v.auth_token, loc]));
   assert.equal(pIn.ok, true, JSON.stringify(pIn));
@@ -828,11 +835,11 @@ await test('face recognition: enroll in the employee account → Clock In by fac
 
   // A face authorization does not depend on the PIN, and staff can remove the face.
   await admin(`select set_employee_pin($1, '274916')`, [emp.id]);            // resetting the PIN does not affect the face
-  const v3 = await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]));
+  const v3 = await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([picture(ana), picture(ana)])]));
   assert.equal((await val(anon(`select site_punch($1, $2, 'clock_in', gen_random_uuid(), $3::jsonb, now())`, [dev.token, v3.auth_token, loc]))).ok, true);
   await rejects(anon(`select admin_clear_face($1)`, [emp.id]), /permission denied/, 'anon cannot remove faces');
   await admin(`select admin_clear_face($1)`, [emp.id]);
-  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify(picture(ana))]))).code, 'FACE_NOT_ENROLLED');
+  assert.equal((await val(anon(`select site_verify_face($1, $2, $3::jsonb)`, [dev.token, emp.id, JSON.stringify([picture(ana), picture(ana)])]))).code, 'FACE_NOT_ENROLLED');
   assert.equal((await val(anon(`select site_roster($1)`, [dev.token]))).employees[0].has_face, false);
 });
 
